@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeopleBot · Dashboard de Suscriptores</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+  :root {
+    --ink:        #0F172A;
+    --ink-deep:   #080E1C;
+    --ink-mid:    #1E293B;
+    --blue:       #2563EB;
+    --blue-lt:    #EFF6FF;
+    --gold:       #D97706;
+    --gold-lt:    #FEF3C7;
+    --green:      #059669;
+    --green-lt:   #D1FAE5;
+    --red:        #DC2626;
+    --red-lt:     #FEE2E2;
+    --white:      #FFFFFF;
+    --slate-50:   #F8FAFC;
+    --slate-100:  #F1F5F9;
+    --border:     #E2E8F0;
+    --text-dark:  #0F172A;
+    --text-mid:   #334155;
+    --text-muted: #64748B;
+    --sans: 'DM Sans', sans-serif;
+    --serif: 'DM Serif Display', serif;
+    --r: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { font-family: var(--sans); background: var(--slate-50); color: var(--text-dark); line-height: 1.6; }
+
+  /* ── LAYOUT ── */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--ink-deep);
+    padding: 0;
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar-brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-brand-icon {
+    width: 36px; height: 36px;
+    background: var(--blue); border-radius: 8px;
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .sidebar-brand-icon svg { width: 18px; height: 18px; fill: #fff; }
+  .sidebar-brand-name {
+    font-family: var(--serif); font-size: 1.125rem;
+    color: var(--white); line-height: 1.2;
+  }
+  .sidebar-brand-sub { font-size: .72rem; color: rgba(255,255,255,.35); letter-spacing: .06em; text-transform: uppercase; }
+
+  .sidebar-section-title {
+    font-size: .64rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: rgba(255,255,255,.25);
+    padding: 22px 20px 8px;
+  }
+  .sidebar-nav { list-style: none; padding: 0 10px; }
+  .sidebar-nav li a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: var(--r);
+    color: rgba(255,255,255,.52); font-size: .875rem;
+    font-weight: 500; text-decoration: none;
+    transition: all .2s;
+  }
+  .sidebar-nav li a:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.05); }
+  .sidebar-nav li a.active { color: var(--white); background: var(--blue); }
+  .sidebar-nav li a svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
+
+  .sidebar-footer {
+    margin-top: auto; padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,.07);
+  }
+  .sidebar-footer a {
+    display: block; color: rgba(255,255,255,.4);
+    font-size: .8rem; text-decoration: none; transition: color .2s;
+  }
+  .sidebar-footer a:hover { color: rgba(255,255,255,.7); }
+
+  /* ── MAIN ── */
+  .main { padding: 32px 36px; overflow-x: hidden; }
+
+  .page-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 28px;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .page-title { font-family: var(--serif); font-size: 1.875rem; color: var(--text-dark); margin-bottom: 4px; }
+  .page-sub { font-size: .875rem; color: var(--text-muted); }
+  .header-actions { display: flex; gap: 10px; }
+  .btn-sm {
+    font-family: var(--sans); font-size: .8125rem; font-weight: 600;
+    padding: 8px 16px; border-radius: var(--r); border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: all .2s;
+  }
+  .btn-outline { background: var(--white); border: 1px solid var(--border); color: var(--text-mid); }
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: #1D4ED8; }
+  .btn-sm svg { width: 13px; height: 13px; fill: currentColor; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 20px 22px;
+    box-shadow: var(--shadow-sm);
+    position: relative; overflow: hidden;
+  }
+  .kpi::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .kpi.blue::before  { background: var(--blue); }
+  .kpi.gold::before  { background: var(--gold); }
+  .kpi.green::before { background: var(--green); }
+  .kpi.slate::before { background: var(--text-muted); }
+  .kpi-label { font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .kpi-value { font-family: var(--serif); font-size: 2.125rem; color: var(--text-dark); line-height: 1; margin-bottom: 8px; }
+  .kpi-delta {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: .75rem; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+  }
+  .kpi-delta.up   { background: var(--green-lt); color: var(--green); }
+  .kpi-delta.down { background: var(--red-lt);   color: var(--red); }
+  .kpi-delta svg { width: 11px; height: 11px; fill: currentColor; }
+  .kpi-foot { font-size: .78rem; color: var(--text-muted); margin-top: 6px; }
+
+  /* ── CHARTS GRID ── */
+  .charts-grid {
+    display: grid; grid-template-columns: 2fr 1fr;
+    gap: 16px; margin-bottom: 24px;
+  }
+  .card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--r); padding: 22px 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 20px;
+  }
+  .card-title { font-size: 1rem; font-weight: 600; color: var(--text-dark); margin-bottom: 2px; }
+  .card-sub { font-size: .8rem; color: var(--text-muted); }
+  .card-badge {
+    font-size: .68rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 20px;
+    background: var(--blue-lt); color: var(--blue);
+  }
+  .card-badge.gold { background: var(--gold-lt); color: var(--gold); }
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ── PLATFORM TABLE ── */
+  .platform-table { width: 100%; border-collapse: collapse; }
+  .platform-table th {
+    text-align: left; font-size: .7rem; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-muted); padding: 0 0 12px; border-bottom: 1px solid var(--border);
+  }
+  .platform-table td { padding: 13px 0; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .platform-table tr:last-child td { border-bottom: none; }
+  .platform-name { font-size: .9rem; font-weight: 600; color: var(--text-dark); }
+  .platform-sub  { font-size: .78rem; color: var(--text-muted); }
+  .platform-icon {
+    width: 32px; height: 32px; border-radius: 7px;
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .platform-icon svg { width: 15px; height: 15px; fill: currentColor; }
+  .platform-cell { display: flex; align-items: center; gap: 10px; }
+  .trend-bar-wrap { width: 80px; height: 6px; background: var(--border); border-radius: 3px; }
+  .trend-bar { height: 100%; border-radius: 3px; background: var(--blue); }
+  .trend-bar.gold { background: var(--gold); }
+  .trend-bar.green { background: var(--green); }
+  .num { font-weight: 600; color: var(--text-dark); font-size: .9rem; }
+  .growth-tag { font-size: .72rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+  .growth-tag.pos { background: var(--green-lt); color: var(--green); }
+  .growth-tag.neg { background: var(--red-lt); color: var(--red); }
+
+  /* ── BOTTOM ROW ── */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* Geography list */
+  .geo-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .geo-item { display: flex; align-items: center; gap: 10px; }
+  .geo-flag { font-size: 1.1rem; width: 24px; text-align: center; }
+  .geo-label { font-size: .875rem; color: var(--text-mid); flex: 1; }
+  .geo-pct { font-size: .875rem; font-weight: 600; color: var(--text-dark); }
+  .geo-bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 3px; }
+  .geo-bar { height: 100%; border-radius: 3px; background: var(--blue); }
+
+  /* Recent events */
+  .events-list { display: flex; flex-direction: column; gap: 0; }
+  .event-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 13px 0; border-bottom: 1px solid var(--border);
+  }
+  .event-item:last-child { border-bottom: none; }
+  .event-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 6px;
+  }
+  .event-dot.blue  { background: var(--blue); }
+  .event-dot.gold  { background: var(--gold); }
+  .event-dot.green { background: var(--green); }
+  .event-dot.slate { background: var(--text-muted); }
+  .event-body {}
+  .event-title { font-size: .875rem; font-weight: 600; color: var(--text-dark); }
+  .event-desc  { font-size: .8rem; color: var(--text-muted); }
+  .event-time  { font-size: .72rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* Disclaimer */
+  .disclaimer {
+    background: var(--gold-lt); border: 1px solid #FDE68A;
+    border-radius: var(--r); padding: 12px 16px;
+    font-size: .8rem; color: #92400E; margin-top: 16px;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .disclaimer svg { width: 14px; height: 14px; fill: #92400E; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 900px)  {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .charts-grid, .bottom-grid { grid-template-columns: 1fr; }
+    .main { padding: 20px; }
+  }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm-6 11c0 3.53 2.61 6.44 6 6.93V21H9v2h6v-2h-2v-2.07C16.39 17.44 19 14.53 19 11h-2a5 5 0 0 1-10 0H6z"/></svg>
+      </div>
+      <div>
+        <div class="sidebar-brand-name">PeopleBot</div>
+        <div class="sidebar-brand-sub">Analytics</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-title">Principal</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a href="#" class="active">
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Resumen
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          Suscriptores
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+          Newsletter
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm-1 3a1 1 0 0 1 2 0v8a1 1 0 0 1-2 0V4zm-6 8c0 3.53 2.61 6.44 6 6.93V21H9v2h6v-2h-2v-2.07C16.39 18.44 19 15.53 19 12h-2a5 5 0 0 1-10 0H5z"/></svg>
+          Podcast
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-section-title">Configuración</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a href="#">
+          <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+          Configuración
+        </a>
+      </li>
+      <li>
+        <a href="index.html">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          Volver al sitio
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="index.html#privacidad">Política de Privacidad</a>
+      <a href="#" style="margin-top:4px">© 2026 PeopleBot LLC · Arkansas, EE. UU.</a>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Resumen de audiencia</div>
+        <div class="page-sub">Datos agregados de todas las plataformas · Actualizado: abril 2026</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-sm btn-outline">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Exportar
+        </button>
+        <button class="btn-sm btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Sincronizar
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="kpi-grid">
+      <div class="kpi blue">
+        <div class="kpi-label">Suscriptores totales</div>
+        <div class="kpi-value">1,247</div>
+        <div>
+          <span class="kpi-delta up">
+            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+            +12.4%
+          </span>
+        </div>
+        <div class="kpi-foot">vs. mes anterior</div>
+      </div>
+      <div class="kpi gold">
+        <div class="kpi-label">Aperturas newsletter</div>
+        <div class="kpi-value">58.3%</div>
+        <div>
+          <span class="kpi-delta up">
+            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+            +3.1 pp
+          </span>
+        </div>
+        <div class="kpi-foot">promedio industria: 38%</div>
+      </div>
+      <div class="kpi green">
+        <div class="kpi-label">Escuchas podcast / ep.</div>
+        <div class="kpi-value">340</div>
+        <div>
+          <span class="kpi-delta up">
+            <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+            +22%
+          </span>
+        </div>
+        <div class="kpi-foot">promedio últimos 5 eps.</div>
+      </div>
+      <div class="kpi slate">
+        <div class="kpi-label">Tasa de clics (CTR)</div>
+        <div class="kpi-value">9.7%</div>
+        <div>
+          <span class="kpi-delta down">
+            <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+            -0.8 pp
+          </span>
+        </div>
+        <div class="kpi-foot">vs. mes anterior</div>
+      </div>
+    </div>
+
+    <!-- Chart row -->
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Crecimiento de suscriptores</div>
+            <div class="card-sub">Evolución mensual · Substack + Plataformas</div>
+          </div>
+          <span class="card-badge">2025–2026</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="growthChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Distribución de audiencia</div>
+            <div class="card-sub">Por plataforma · Abril 2026</div>
+          </div>
+          <span class="card-badge gold">Activo</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform table -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Rendimiento por plataforma</div>
+          <div class="card-sub">Comparativa mensual de alcance y crecimiento</div>
+        </div>
+      </div>
+      <table class="platform-table">
+        <thead>
+          <tr>
+            <th>Plataforma</th>
+            <th>Seguidores / Suscriptores</th>
+            <th>Alcance mensual</th>
+            <th>Crecimiento</th>
+            <th>Tendencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="platform-cell">
+                <div class="platform-icon" style="background:#EFF6FF; color:#2563EB">
+                  <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+                </div>
+                <div>
+                  <div class="platform-name">Substack Newsletter</div>
+                  <div class="platform-sub">PeopleBot Weekly</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="num">687</span></td>
+            <td><span class="num">400+</span></td>
+            <td><span class="growth-tag pos">+14.2%</span></td>
+            <td><div class="trend-bar-wrap"><div class="trend-bar" style="width:78%"></div></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="platform-cell">
+                <div class="platform-icon" style="background:#F0FDF4; color:#059669">
+                  <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+                </div>
+                <div>
+                  <div class="platform-name">Spotify Podcast</div>
+                  <div class="platform-sub">IA en RRHH · 17+ eps.</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="num">340 /ep</span></td>
+            <td><span class="num">5,780</span></td>
+            <td><span class="growth-tag pos">+22%</span></td>
+            <td><div class="trend-bar-wrap"><div class="trend-bar green" style="width:90%"></div></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="platform-cell">
+                <div class="platform-icon" style="background:#EFF6FF; color:#2563EB">
+                  <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </div>
+                <div>
+                  <div class="platform-name">LinkedIn Company</div>
+                  <div class="platform-sub">PeopleBot</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="num">312</span></td>
+            <td><span class="num">3,100</span></td>
+            <td><span class="growth-tag pos">+8.3%</span></td>
+            <td><div class="trend-bar-wrap"><div class="trend-bar" style="width:52%"></div></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="platform-cell">
+                <div class="platform-icon" style="background:#F8FAFC; color:#334155">
+                  <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </div>
+                <div>
+                  <div class="platform-name">X / Twitter</div>
+                  <div class="platform-sub">@ThePeopleBot</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="num">198</span></td>
+            <td><span class="num">2,200</span></td>
+            <td><span class="growth-tag pos">+5.1%</span></td>
+            <td><div class="trend-bar-wrap"><div class="trend-bar" style="width:38%"></div></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="platform-cell">
+                <div class="platform-icon" style="background:#FFF7ED; color:#D97706">
+                  <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                </div>
+                <div>
+                  <div class="platform-name">Instagram</div>
+                  <div class="platform-sub">@thepeoplebot</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="num">124</span></td>
+            <td><span class="num">980</span></td>
+            <td><span class="growth-tag pos">+18.6%</span></td>
+            <td><div class="trend-bar-wrap"><div class="trend-bar gold" style="width:60%"></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="bottom-grid">
+      <!-- Geography -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Geografía de suscriptores</div>
+            <div class="card-sub">Distribución estimada por país · Substack</div>
+          </div>
+        </div>
+        <ul class="geo-list">
+          <li class="geo-item">
+            <span class="geo-flag">🇲🇽</span>
+            <span class="geo-label">México</span>
+            <div class="geo-bar-wrap"><div class="geo-bar" style="width:72%"></div></div>
+            <span class="geo-pct">28.4%</span>
+          </li>
+          <li class="geo-item">
+            <span class="geo-flag">🇨🇴</span>
+            <span class="geo-label">Colombia</span>
+            <div class="geo-bar-wrap"><div class="geo-bar" style="width:55%"></div></div>
+            <span class="geo-pct">21.8%</span>
+          </li>
+          <li class="geo-item">
+            <span class="geo-flag">🇪🇸</span>
+            <span class="geo-label">España</span>
+            <div class="geo-bar-wrap"><div class="geo-bar" style="width:43%"></div></div>
+            <span class="geo-pct">16.9%</span>
+          </li>
+          <li class="geo-item">
+            <span class="geo-flag">🇦🇷</span>
+            <span class="geo-label">Argentina</span>
+            <div class="geo-bar-wrap"><div class="geo-bar" style="width:32%"></div></div>
+            <span class="geo-pct">12.5%</span>
+          </li>
+          <li class="geo-item">
+            <span class="geo-flag">🇵🇪</span>
+            <span class="geo-label">Perú</span>
+            <div class="geo-bar-wrap"><div class="geo-bar" style="width:22%"></div></div>
+            <span class="geo-pct">8.6%</span>
+          </li>
+          <li class="geo-item">
+            <span class="geo-flag">🌎</span>
+            <span class="geo-label">Otros LATAM + EE. UU.</span>
+            <div class="geo-bar-wrap"><div class="geo-bar" style="width:29%"></div></div>
+            <span class="geo-pct">11.8%</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Recent events -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Actividad reciente</div>
+            <div class="card-sub">Eventos de crecimiento y contenido</div>
+          </div>
+        </div>
+        <div class="events-list">
+          <div class="event-item">
+            <div class="event-dot green"></div>
+            <div class="event-body">
+              <div class="event-title">Ep. 17 publicado en Spotify</div>
+              <div class="event-desc">340 escuchas en los primeros 3 días</div>
+              <div class="event-time">Hace 4 días</div>
+            </div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot blue"></div>
+            <div class="event-body">
+              <div class="event-title">Newsletter #52 enviado</div>
+              <div class="event-desc">Tasa de apertura: 61.2% · CTR: 10.4%</div>
+              <div class="event-time">Hace 6 días</div>
+            </div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot gold"></div>
+            <div class="event-body">
+              <div class="event-title">Hito: 1,200 suscriptores</div>
+              <div class="event-desc">Alcanzado entre Substack y plataformas combinadas</div>
+              <div class="event-time">Hace 2 semanas</div>
+            </div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot blue"></div>
+            <div class="event-body">
+              <div class="event-title">Nuevo suscriptor empresa</div>
+              <div class="event-desc">Consulta de consultoría recibida vía formulario</div>
+              <div class="event-time">Hace 3 semanas</div>
+            </div>
+          </div>
+          <div class="event-item">
+            <div class="event-dot slate"></div>
+            <div class="event-body">
+              <div class="event-title">Sitio web actualizado</div>
+              <div class="event-desc">Política de privacidad y enlace a Spotify añadidos</div>
+              <div class="event-time">Hoy</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data disclaimer -->
+    <div class="disclaimer">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      <span>Los datos de este dashboard son estimaciones de referencia para planificación. Para cifras exactas, accede directamente a Substack Analytics, Spotify for Podcasters y las métricas nativas de cada plataforma. Los datos de suscriptores se tratan bajo la Política de Privacidad de PeopleBot (Arkansas Data Privacy Act, 2023).</span>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Growth line chart ──
+  const growthCtx = document.getElementById('growthChart').getContext('2d');
+  new Chart(growthCtx, {
+    type: 'line',
+    data: {
+      labels: ['Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'],
+      datasets: [{
+        label: 'Suscriptores totales',
+        data: [560, 680, 780, 880, 980, 1110, 1247],
+        borderColor: '#2563EB',
+        backgroundColor: 'rgba(37,99,235,.07)',
+        fill: true,
+        tension: 0.42,
+        pointBackgroundColor: '#2563EB',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2.5,
+      }, {
+        label: 'Escuchas podcast (acum.)',
+        data: [820, 1200, 1700, 2400, 3200, 4400, 5780],
+        borderColor: '#059669',
+        backgroundColor: 'rgba(5,150,105,.04)',
+        fill: false,
+        tension: 0.42,
+        pointBackgroundColor: '#059669',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2,
+        yAxisID: 'y2',
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'DM Sans', size: 11 } } },
+        tooltip: { bodyFont: { family: 'DM Sans' }, titleFont: { family: 'DM Sans' } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 } } },
+        y: {
+          position: 'left',
+          ticks: { font: { family: 'DM Sans', size: 11 } },
+          grid: { color: 'rgba(0,0,0,.05)' }
+        },
+        y2: {
+          position: 'right',
+          ticks: { font: { family: 'DM Sans', size: 11 }, color: '#059669' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  // ── Donut chart ──
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Substack', 'Spotify', 'LinkedIn', 'X / Twitter', 'Instagram'],
+      datasets: [{
+        data: [55, 25, 10, 6, 4],
+        backgroundColor: ['#2563EB', '#059669', '#0EA5E9', '#334155', '#D97706'],
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'DM Sans', size: 11 }, padding: 12 } },
+        tooltip: { bodyFont: { family: 'DM Sans' }, titleFont: { family: 'DM Sans' } }
+      }
+    }
+  });
+</script>
+</body>
+</html>
