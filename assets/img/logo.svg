@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" fill="none">
+  <!-- Brain/Gear hybrid icon -->
+  <g transform="translate(8, 8)">
+    <!-- Gear/cog teeth -->
+    <circle cx="42" cy="42" r="36" stroke="#D94040" stroke-width="2.5" fill="none"/>
+    <!-- Gear teeth -->
+    <rect x="39" y="4" width="6" height="10" rx="2" fill="#D94040"/>
+    <rect x="39" y="70" width="6" height="10" rx="2" fill="#D94040"/>
+    <rect x="4" y="39" width="10" height="6" rx="2" fill="#D94040"/>
+    <rect x="70" y="39" width="10" height="6" rx="2" fill="#D94040"/>
+    <rect x="13" y="13" width="8" height="8" rx="2" transform="rotate(45 17 17)" fill="#D94040"/>
+    <rect x="60" y="13" width="8" height="8" rx="2" transform="rotate(45 64 17)" fill="#D94040"/>
+    <rect x="13" y="63" width="8" height="8" rx="2" transform="rotate(45 17 67)" fill="#D94040"/>
+    <rect x="60" y="63" width="8" height="8" rx="2" transform="rotate(45 64 67)" fill="#D94040"/>
+    <!-- Brain right half -->
+    <path d="M42 18 C42 18 52 18 56 24 C60 30 60 34 58 38 C62 40 64 46 60 50 C62 54 60 60 56 62 C52 66 42 66 42 66 Z" stroke="#D94040" stroke-width="2.2" fill="none" stroke-linejoin="round"/>
+    <!-- Brain left half (circuit-like) -->
+    <path d="M42 18 C42 18 32 18 28 24 C24 30 24 34 26 38 C22 40 20 46 24 50 C22 54 24 60 28 62 C32 66 42 66 42 66 Z" stroke="#D94040" stroke-width="2.2" fill="none" stroke-linejoin="round"/>
+    <!-- Center divider -->
+    <line x1="42" y1="16" x2="42" y2="68" stroke="#D94040" stroke-width="1.5"/>
+    <!-- Brain bumps right -->
+    <path d="M42 28 Q50 28 50 35" stroke="#D94040" stroke-width="1.8" fill="none"/>
+    <path d="M42 40 Q54 38 54 46" stroke="#D94040" stroke-width="1.8" fill="none"/>
+    <path d="M42 55 Q50 52 50 60" stroke="#D94040" stroke-width="1.8" fill="none"/>
+    <!-- Brain bumps left -->
+    <path d="M42 28 Q34 28 34 35" stroke="#D94040" stroke-width="1.8" fill="none"/>
+    <path d="M42 40 Q30 38 30 46" stroke="#D94040" stroke-width="1.8" fill="none"/>
+    <path d="M42 55 Q34 52 34 60" stroke="#D94040" stroke-width="1.8" fill="none"/>
+  </g>
+  <!-- PEOPLE BOT text -->
+  <text x="102" y="48" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="34" fill="#5B21B6" letter-spacing="1">PEOPLE</text>
+  <text x="102" y="84" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="38" fill="#5B21B6" letter-spacing="2">BOT</text>
+</svg>

@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeopleBot | IA para Talento Humano en Habla Hispana</title>
+  <meta name="description" content="PeopleBot es la plataforma de referencia para profesionales de RRHH en habla hispana que lideran la adopción de inteligencia artificial.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===================== DESIGN TOKENS ===================== */
+    :root {
+      --navy:       #130830;
+      --navy-900:   #0B0520;
+      --navy-700:   #1E0B3A;
+      --navy-500:   #2D1260;
+      --blue:       #5B21B6;
+      --blue-hover: #4C1D95;
+      --blue-light: #7C3AED;
+      --amber:      #D94040;
+      --amber-lt:   #E86060;
+      --cream:      #F7F6F2;
+      --white:      #FFFFFF;
+      --border:     #E2E0D8;
+      --muted:      #6B7280;
+      --body-text:  #374151;
+
+      --display: 'DM Serif Display', serif;
+      --sans:    'DM Sans', sans-serif;
+
+      --nav-h:     72px;
+      --pad:       120px;
+      --max-w:     1200px;
+      --r:         4px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--navy);
+      background: var(--white);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 { font-family: var(--display); line-height: 1.12; }
+    h1 { font-size: clamp(2.6rem, 5.5vw, 4.75rem); letter-spacing: -0.025em; }
+    h2 { font-size: clamp(2rem, 4vw, 3.25rem);   letter-spacing: -0.02em; }
+    h3 { font-size: clamp(1.2rem, 2vw, 1.625rem); letter-spacing: -0.01em; }
+    p  { font-size: 1.0625rem; line-height: 1.72; color: var(--body-text); }
+    a  { color: inherit; text-decoration: none; }
+
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+
+    /* ===================== NAV ===================== */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      z-index: 200;
+      transition: background .35s, box-shadow .35s;
+    }
+    .nav.scrolled {
+      background: rgba(6, 14, 26, .95);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 1px 0 rgba(255,255,255,.07);
+    }
+    .nav-inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .nav-logo {
+      font-family: var(--display);
+      font-size: 1.4375rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo-icon {
+      width: 34px; height: 34px;
+      background: var(--blue);
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: .75rem;
+      color: #fff;
+      letter-spacing: .03em;
+    }
+    .nav-logo img {
+      height: 36px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      object-fit: contain;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: rgba(255,255,255,.68);
+      font-size: .9375rem;
+      letter-spacing: .01em;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .lang-toggle {
+      display: flex;
+      background: rgba(255,255,255,.09);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .lang-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.55);
+      font-family: var(--sans);
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .09em;
+      padding: 6px 13px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .lang-btn.active { background: var(--blue); color: #fff; }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--blue); color: #fff;
+      font-family: var(--sans); font-size: .9375rem; font-weight: 500;
+      padding: 10px 22px; border-radius: var(--r); border: none;
+      cursor: pointer; transition: background .2s, transform .1s;
+      display: inline-flex; align-items: center; gap: 8px;
+      white-space: nowrap; text-decoration: none;
+    }
+    .btn-primary:hover { background: var(--blue-hover); }
+    .btn-primary:active { transform: scale(.98); }
+
+    .btn-outline {
+      background: transparent; color: #fff;
+      font-family: var(--sans); font-size: .9375rem; font-weight: 500;
+      padding: 10px 22px; border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,.32);
+      cursor: pointer; transition: border-color .2s, background .2s;
+      display: inline-flex; align-items: center; gap: 8px;
+      white-space: nowrap; text-decoration: none;
+    }
+    .btn-outline:hover {
+      border-color: rgba(255,255,255,.65);
+      background: rgba(255,255,255,.05);
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      padding: 4px; flex-direction: column; gap: 5px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: #fff; transition: all .3s;
+    }
+
+    /* Mobile nav */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: var(--nav-h); left: 0; right: 0;
+      background: var(--navy-900);
+      padding: 24px 24px 32px;
+      z-index: 199;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .mobile-nav.open { display: block; }
+    .mobile-nav-links { list-style: none; }
+    .mobile-nav-links li a {
+      display: block;
+      padding: 14px 0;
+      color: rgba(255,255,255,.78);
+      font-size: 1.0625rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .mobile-cta-row {
+      margin-top: 22px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .mobile-cta-row .btn-primary,
+    .mobile-cta-row .btn-outline { justify-content: center; }
+
+    /* ===================== HERO ===================== */
+    .hero {
+      min-height: 100vh;
+      background: var(--navy);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    /* Grid texture */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(27,111,232,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(27,111,232,.06) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+    }
+    /* Radial glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -120px; right: -80px;
+      width: 720px; height: 720px;
+      background: radial-gradient(circle, rgba(27,111,232,.14) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      padding-top: calc(var(--nav-h) + 90px);
+      padding-bottom: 0;
+      flex: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center; gap: 12px;
+      margin-bottom: 30px;
+      color: var(--amber);
+      font-size: .8125rem; font-weight: 600;
+      letter-spacing: .13em; text-transform: uppercase;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block;
+      width: 36px; height: 2px;
+      background: var(--amber);
+    }
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 80px;
+      align-items: flex-start;
+    }
+    .hero-headline { color: #fff; margin-bottom: 26px; }
+    .hero-headline em { font-style: italic; color: var(--amber); }
+    .hero-sub {
+      color: rgba(255,255,255,.6);
+      font-size: 1.125rem; font-weight: 300; line-height: 1.75;
+      margin-bottom: 42px; max-width: 500px;
+    }
+    .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-ctas .btn-primary { font-size: 1rem; padding: 13px 26px; }
+    .hero-ctas .btn-outline  { font-size: 1rem; padding: 13px 26px; }
+
+    /* Right column: stacked cards */
+    .hero-cards {
+      display: flex; flex-direction: column; gap: 14px;
+      padding-top: 12px;
+    }
+    .hero-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 6px;
+      padding: 22px 24px;
+      transition: border-color .3s, background .3s;
+    }
+    .hero-card:hover {
+      border-color: rgba(27,111,232,.45);
+      background: rgba(27,111,232,.07);
+    }
+    .hero-card-tag {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--amber);
+      margin-bottom: 7px;
+    }
+    .hero-card-title {
+      font-family: var(--display); font-size: 1rem;
+      color: #fff; margin-bottom: 5px;
+    }
+    .hero-card-desc {
+      font-size: .8125rem; color: rgba(255,255,255,.45); line-height: 1.5;
+    }
+
+    /* ===================== STATS BAR ===================== */
+    .stats-bar {
+      position: relative; z-index: 2;
+      background: var(--navy-700);
+      border-top: 1px solid rgba(255,255,255,.08);
+      margin-top: 72px;
+    }
+    .stats-inner {
+      display: flex; justify-content: space-around;
+      align-items: center; padding: 44px 0; gap: 16px;
+    }
+    .stat-item { text-align: center; position: relative; }
+    .stat-item + .stat-item::before {
+      content: '';
+      position: absolute; left: -20px; top: 50%;
+      transform: translateY(-50%);
+      width: 1px; height: 44px;
+      background: rgba(255,255,255,.1);
+    }
+    .stat-num {
+      font-family: var(--display);
+      font-size: 3rem; color: #fff; line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-num span { color: var(--amber); }
+    .stat-label {
+      font-size: .775rem; color: rgba(255,255,255,.45);
+      letter-spacing: .07em; text-transform: uppercase;
+    }
+
+    /* ===================== SECTION SHARED ===================== */
+    .section-eyebrow {
+      font-size: .8rem; font-weight: 700;
+      letter-spacing: .13em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-eyebrow::before {
+      content: ''; display: block;
+      width: 26px; height: 2px; background: var(--blue);
+    }
+
+    /* ===================== MISSION ===================== */
+    .mission {
+      background: var(--cream);
+      padding: var(--pad) 0;
+    }
+    .mission-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: start;
+    }
+    .mission-body p + p { margin-top: 20px; }
+    .mission-pillars {
+      margin-top: 64px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .pillar {
+      background: var(--white);
+      padding: 40px 32px;
+    }
+    .pillar-num {
+      font-family: var(--display);
+      font-size: 3.25rem; color: var(--blue);
+      opacity: .18; line-height: 1; margin-bottom: 18px;
+    }
+    .pillar-title {
+      font-size: 1.0625rem; font-weight: 600;
+      color: var(--navy); margin-bottom: 10px;
+    }
+    .pillar-text { font-size: .9375rem; color: var(--muted); line-height: 1.65; }
+
+    /* ===================== PRODUCTS ===================== */
+    .products { padding: var(--pad) 0; background: var(--white); }
+    .products-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-end; margin-bottom: 52px;
+    }
+    .products-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 2px; background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .product-card {
+      background: var(--white);
+      padding: 52px 46px;
+      position: relative; overflow: hidden;
+      transition: background .25s;
+    }
+    .product-card:hover { background: var(--cream); }
+    .product-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: var(--blue);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .35s;
+    }
+    .product-card:hover::after { transform: scaleX(1); }
+    .product-icon {
+      width: 50px; height: 50px;
+      background: var(--navy); border-radius: 8px;
+      display: grid; place-items: center;
+      margin-bottom: 28px;
+    }
+    .product-icon svg { width: 24px; height: 24px; fill: #fff; }
+    .product-icon.amber { background: var(--amber); }
+    .product-tag {
+      font-size: .73rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 12px;
+    }
+    .product-title {
+      font-family: var(--display);
+      font-size: 1.5rem; color: var(--navy); margin-bottom: 14px;
+    }
+    .product-desc {
+      font-size: .9375rem; color: var(--muted);
+      line-height: 1.72; margin-bottom: 28px;
+    }
+    .product-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .9375rem; font-weight: 600; color: var(--blue);
+      transition: gap .2s;
+    }
+    .product-link:hover { gap: 13px; }
+    .product-link.amber-link { color: var(--amber); }
+    .badge-soon {
+      display: inline-block;
+      background: var(--amber); color: #fff;
+      font-size: .6rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 2px;
+      margin-left: 8px; vertical-align: middle;
+    }
+
+    /* ===================== FOUNDER ===================== */
+    .founder {
+      padding: var(--pad) 0;
+      background: var(--navy);
+      position: relative; overflow: hidden;
+    }
+    .founder::before {
+      content: '';
+      position: absolute; right: -150px; top: -100px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(27,111,232,.1) 0%, transparent 68%);
+      pointer-events: none;
+    }
+    .founder-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 80px; align-items: center;
+      position: relative; z-index: 1;
+    }
+    .founder-img-wrap { position: relative; }
+    .founder-img {
+      width: 100%; aspect-ratio: 3/4;
+      background: var(--navy-700);
+      border: 1px solid rgba(255,255,255,.08);
+      display: grid; place-items: center;
+      position: relative; overflow: hidden;
+    }
+    .founder-monogram {
+      font-family: var(--display);
+      font-size: 7rem; color: rgba(255,255,255,.07);
+      user-select: none; line-height: 1;
+    }
+    .founder-img::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 45%;
+      background: linear-gradient(to top, var(--navy) 0%, transparent 100%);
+    }
+    .founder-accent-frame {
+      position: absolute;
+      top: -10px; left: -10px; right: 10px; bottom: 10px;
+      border: 1px solid var(--blue); opacity: .25;
+      pointer-events: none;
+    }
+    .founder-content .section-eyebrow { color: var(--amber); }
+    .founder-content .section-eyebrow::before { background: var(--amber); }
+    .founder-name {
+      font-family: var(--display);
+      font-size: clamp(2.1rem, 3.5vw, 3rem);
+      color: #fff; margin-bottom: 8px;
+    }
+    .founder-role {
+      font-size: .9375rem; color: var(--amber);
+      font-weight: 500; letter-spacing: .03em; margin-bottom: 34px;
+    }
+    .founder-bio p {
+      color: rgba(255,255,255,.6);
+      font-size: 1.0625rem; line-height: 1.8;
+      margin-bottom: 18px;
+    }
+    .founder-ctas {
+      display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px;
+    }
+    .social-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--r);
+      color: rgba(255,255,255,.68);
+      font-size: .875rem; font-weight: 500;
+      transition: all .2s;
+    }
+    .social-pill:hover {
+      border-color: rgba(255,255,255,.38);
+      color: #fff; background: rgba(255,255,255,.04);
+    }
+    .social-pill svg { width: 15px; height: 15px; fill: currentColor; }
+
+    /* ===================== NEWSLETTER CTA ===================== */
+    .newsletter-section {
+      background: var(--blue);
+      padding: 96px 0;
+      position: relative; overflow: hidden;
+    }
+    .newsletter-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+    .newsletter-inner {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .newsletter-headline {
+      font-family: var(--display);
+      font-size: clamp(1.875rem, 3vw, 2.625rem);
+      color: #fff; margin-bottom: 16px; line-height: 1.15;
+    }
+    .newsletter-sub {
+      color: rgba(255,255,255,.72);
+      font-size: 1.0625rem; line-height: 1.72;
+    }
+    .nl-form { display: flex; flex-direction: column; gap: 14px; }
+    .nl-field { display: flex; }
+    .nl-input {
+      flex: 1; padding: 14px 18px;
+      font-family: var(--sans); font-size: .9375rem;
+      background: rgba(255,255,255,.13);
+      border: 1px solid rgba(255,255,255,.28); border-right: none;
+      color: #fff; border-radius: var(--r) 0 0 var(--r);
+      outline: none; transition: border-color .2s;
+    }
+    .nl-input::placeholder { color: rgba(255,255,255,.42); }
+    .nl-input:focus { border-color: rgba(255,255,255,.65); }
+    .nl-submit {
+      background: var(--navy); color: #fff;
+      border: 1px solid var(--navy);
+      padding: 14px 24px;
+      font-family: var(--sans); font-size: .9375rem; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+      border-radius: 0 var(--r) var(--r) 0;
+      white-space: nowrap;
+    }
+    .nl-submit:hover { background: var(--navy-700); }
+    .nl-note { font-size: .8rem; color: rgba(255,255,255,.5); }
+
+    /* ===================== CONTACT ===================== */
+    .contact { padding: var(--pad) 0; background: var(--cream); }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; margin-top: 48px;
+    }
+    .contact-block { margin-bottom: 30px; }
+    .contact-block-label {
+      font-size: .73rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+    }
+    .contact-block-value { font-size: 1.0625rem; color: var(--navy); font-weight: 500; }
+    .contact-block-value a { color: var(--blue); transition: color .2s; }
+    .contact-block-value a:hover { color: var(--blue-hover); }
+    .contact-socials { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 36px; }
+    .contact-social-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border: 1px solid var(--border);
+      border-radius: var(--r); color: var(--navy);
+      font-size: .875rem; font-weight: 500;
+      transition: border-color .2s, color .2s;
+    }
+    .contact-social-pill:hover { border-color: var(--blue); color: var(--blue); }
+    .contact-social-pill svg { width: 15px; height: 15px; fill: currentColor; }
+
+    /* Form */
+    .cform { display: flex; flex-direction: column; gap: 20px; }
+    .cf-row { display: flex; flex-direction: column; gap: 7px; }
+    .cf-label {
+      font-size: .875rem; font-weight: 500; color: var(--navy);
+    }
+    .cf-input, .cf-textarea {
+      font-family: var(--sans); font-size: .9375rem;
+      padding: 13px 16px;
+      border: 1px solid var(--border); border-radius: var(--r);
+      background: var(--white); color: var(--navy);
+      outline: none; transition: border-color .2s; width: 100%;
+    }
+    .cf-input:focus, .cf-textarea:focus { border-color: var(--blue); }
+    .cf-textarea { resize: vertical; min-height: 130px; }
+    .btn-dark {
+      background: var(--navy); color: #fff;
+      font-family: var(--sans); font-size: .9375rem; font-weight: 600;
+      padding: 14px 28px; border: none; border-radius: var(--r);
+      cursor: pointer; transition: background .2s;
+      align-self: flex-start;
+    }
+    .btn-dark:hover { background: var(--navy-700); }
+
+    /* ===================== FOOTER ===================== */
+    .footer { background: var(--navy-900); padding: 64px 0 36px; }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px; margin-bottom: 52px;
+    }
+    .footer-brand-text {
+      font-size: .9375rem; color: rgba(255,255,255,.4);
+      line-height: 1.72; margin-top: 16px; max-width: 270px;
+    }
+    .footer-col-head {
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.3);
+      margin-bottom: 16px;
+    }
+    .footer-col-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col-links a {
+      color: rgba(255,255,255,.5);
+      font-size: .9375rem; transition: color .2s;
+    }
+    .footer-col-links a:hover { color: rgba(255,255,255,.9); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding-top: 28px;
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 20px; flex-wrap: wrap;
+    }
+    .footer-copy { color: rgba(255,255,255,.28); font-size: .875rem; }
+    .footer-socials { display: flex; gap: 10px; }
+    .footer-soc-btn {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: var(--r);
+      display: grid; place-items: center;
+      color: rgba(255,255,255,.4);
+      transition: all .2s;
+    }
+    .footer-soc-btn:hover { border-color: rgba(255,255,255,.32); color: #fff; }
+    .footer-soc-btn svg { width: 15px; height: 15px; fill: currentColor; }
+
+    /* ===================== SCROLL ANIMATION ===================== */
+    .fade-in {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .fade-in.show { opacity: 1; transform: translateY(0); }
+    .stagger-children > * {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity .5s, transform .5s;
+    }
+    .stagger-children.show > *:nth-child(1) { opacity:1; transform:none; transition-delay:.05s; }
+    .stagger-children.show > *:nth-child(2) { opacity:1; transform:none; transition-delay:.15s; }
+    .stagger-children.show > *:nth-child(3) { opacity:1; transform:none; transition-delay:.25s; }
+    .stagger-children.show > *:nth-child(4) { opacity:1; transform:none; transition-delay:.35s; }
+
+    /* Number counter animation */
+    .count-num { display: inline-block; }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 1024px) {
+      .hero-layout { grid-template-columns: 1fr; }
+      .hero-cards { display: none; }
+      :root { --pad: 88px; }
+    }
+    @media (max-width: 900px) {
+      .nav-links, .nav-cta-d { display: none; }
+      .hamburger { display: flex; }
+      .mission-split { grid-template-columns: 1fr; gap: 40px; }
+      .mission-pillars { grid-template-columns: 1fr; }
+      .founder-grid { grid-template-columns: 1fr; }
+      .founder-img-wrap { max-width: 300px; }
+      .newsletter-inner { grid-template-columns: 1fr; gap: 44px; }
+      .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 0 22px; }
+      :root { --pad: 64px; }
+      .products-grid { grid-template-columns: 1fr; }
+      .stats-inner { flex-wrap: wrap; gap: 34px; }
+      .stat-item + .stat-item::before { display: none; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .hero-ctas { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav class="nav" id="mainNav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#inicio" class="nav-logo">
+        <img src="assets/img/logo.svg" alt="PeopleBot">
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#mision"   data-es="Misión"    data-en="Mission">Misión</a></li>
+        <li><a href="#productos" data-es="Productos" data-en="Products">Productos</a></li>
+        <li><a href="#fundador" data-es="Fundador"  data-en="Founder">Fundador</a></li>
+        <li><a href="#contacto" data-es="Contacto"  data-en="Contact">Contacto</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="es">ES</button>
+          <button class="lang-btn"        data-lang="en">EN</button>
+        </div>
+        <a href="https://substack.com/@gustavovalbuena" target="_blank"
+           class="btn-primary nav-cta-d">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+          <span data-es="Suscribirse" data-en="Subscribe">Suscribirse</span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobileNav">
+  <ul class="mobile-nav-links">
+    <li><a href="#mision"    data-es="Misión"    data-en="Mission"   onclick="closeMobile()">Misión</a></li>
+    <li><a href="#productos" data-es="Productos" data-en="Products"  onclick="closeMobile()">Productos</a></li>
+    <li><a href="#fundador"  data-es="Fundador"  data-en="Founder"   onclick="closeMobile()">Fundador</a></li>
+    <li><a href="#contacto"  data-es="Contacto"  data-en="Contact"   onclick="closeMobile()">Contacto</a></li>
+  </ul>
+  <div class="mobile-cta-row">
+    <a href="https://substack.com/@gustavovalbuena" target="_blank" class="btn-primary">
+      <span data-es="Leer el Newsletter" data-en="Read the Newsletter">Leer el Newsletter</span>
+    </a>
+    <a href="https://x.com/ThePeopleBot" target="_blank" class="btn-outline">
+      <span data-es="Seguir en X" data-en="Follow on X">Seguir en X</span>
+    </a>
+  </div>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero" id="inicio">
+  <div class="container hero-content">
+    <div class="hero-eyebrow" data-es="Inteligencia Artificial · Talento Humano · Habla Hispana"
+                              data-en="Artificial Intelligence · Human Talent · Spanish-Speaking World">
+      Inteligencia Artificial · Talento Humano · Habla Hispana
+    </div>
+
+    <div class="hero-layout">
+      <div>
+        <h1 class="hero-headline" id="heroHeadline">
+          <span data-es="El guía de confianza para los profesionales de <em>RRHH</em><br>en habla hispana"
+                data-en="The trusted guide for <em>HR</em> professionals<br>in the Spanish-speaking world">
+            El guía de confianza para los profesionales de <em>RRHH</em><br>en habla hispana
+          </span>
+        </h1>
+        <p class="hero-sub"
+           data-es="PeopleBot conecta a los líderes de talento humano en América Latina y España con las herramientas, el conocimiento y la comunidad que necesitan para liderar la era de la IA."
+           data-en="PeopleBot connects HR leaders across Latin America and Spain with the tools, knowledge, and community they need to lead the AI era.">
+          PeopleBot conecta a los líderes de talento humano en América Latina y España con las herramientas, el conocimiento y la comunidad que necesitan para liderar la era de la IA.
+        </p>
+        <div class="hero-ctas">
+          <a href="https://substack.com/@gustavovalbuena" target="_blank" class="btn-primary">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+            <span data-es="Leer el Newsletter" data-en="Read the Newsletter">Leer el Newsletter</span>
+          </a>
+          <a href="https://x.com/ThePeopleBot" target="_blank" class="btn-outline">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <span data-es="Seguir en X" data-en="Follow on X">Seguir en X</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Decorative cards column -->
+      <div class="hero-cards">
+        <div class="hero-card">
+          <div class="hero-card-tag" data-es="Podcast · 17+ Episodios" data-en="Podcast · 17+ Episodes">Podcast · 17+ Episodios</div>
+          <div class="hero-card-title" data-es="IA en RRHH" data-en="AI in HR">IA en RRHH</div>
+          <div class="hero-card-desc" data-es="Episodios profundos sobre inteligencia artificial para profesionales de talento humano en español." data-en="Deep episodes on AI for HR professionals in Spanish.">Episodios profundos sobre inteligencia artificial para profesionales de talento humano en español.</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-tag" data-es="Newsletter Semanal" data-en="Weekly Newsletter">Newsletter Semanal</div>
+          <div class="hero-card-title">PeopleBot Weekly</div>
+          <div class="hero-card-desc" data-es="Herramientas, análisis y casos prácticos. Sin ruido. En tu idioma." data-en="Tools, analysis, and practical cases. No noise. In your language.">Herramientas, análisis y casos prácticos. Sin ruido. En tu idioma.</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-tag" data-es="Certificación · Próximamente" data-en="Certification · Coming Soon">Certificación · Próximamente</div>
+          <div class="hero-card-title" data-es="PeopleBot IA Certificate" data-en="PeopleBot AI Certificate">PeopleBot IA Certificate</div>
+          <div class="hero-card-desc" data-es="La credencial de referencia para líderes de RRHH en la era de la IA." data-en="The reference credential for HR leaders in the AI era.">La credencial de referencia para líderes de RRHH en la era de la IA.</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-tag" data-es="Consultoría · Empresas" data-en="Consulting · Enterprises">Consultoría · Empresas</div>
+          <div class="hero-card-title" data-es="Adopción de IA en RRHH" data-en="AI Adoption in HR">Adopción de IA en RRHH</div>
+          <div class="hero-card-desc" data-es="Acompañamos a equipos de talento en la evaluación e implementación de IA." data-en="We guide HR teams through AI evaluation and implementation.">Acompañamos a equipos de talento en la evaluación e implementación de IA.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-inner stagger-children" id="statsBar">
+        <div class="stat-item">
+          <div class="stat-num"><span class="count-num" data-target="17">17</span><span>+</span></div>
+          <div class="stat-label" data-es="Episodios de Podcast" data-en="Podcast Episodes">Episodios de Podcast</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span class="count-num" data-target="1">1</span><span>K+</span></div>
+          <div class="stat-label" data-es="Suscriptores" data-en="Subscribers">Suscriptores</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span class="count-num" data-target="4">4</span></div>
+          <div class="stat-label" data-es="Plataformas Activas" data-en="Active Platforms">Plataformas Activas</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num"><span class="count-num" data-target="1">1</span></div>
+          <div class="stat-label" data-es="Idioma de Origen: Español" data-en="Built in Spanish First">Idioma de Origen: Español</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MISSION ==================== -->
+<section class="mission" id="mision">
+  <div class="container">
+    <div class="section-eyebrow">
+      <span data-es="Nuestra Misión" data-en="Our Mission">Nuestra Misión</span>
+    </div>
+    <div class="mission-split fade-in">
+      <div>
+        <h2 data-es="La brecha que cerramos" data-en="The gap we close">La brecha que cerramos</h2>
+      </div>
+      <div>
+        <p data-es="El mercado está lleno de publicaciones, blogs y cursos sobre IA para RRHH en inglés, pensados para audiencias de Silicon Valley. En Latinoamérica y España, el profesional de talento humano recibe traducciones fragmentadas sin nada que conecte la teoría con su realidad: su empresa, su cultura, su presupuesto, su idioma."
+           data-en="The market is full of publications, blogs, and courses on AI for HR in English, designed for Silicon Valley audiences. In Latin America and Spain, the HR professional receives fragmented translations with nothing connecting theory to their reality: their company, their culture, their budget, their language.">
+          El mercado está lleno de publicaciones, blogs y cursos sobre IA para RRHH en inglés, pensados para audiencias de Silicon Valley. En Latinoamérica y España, el profesional de talento humano recibe traducciones fragmentadas sin nada que conecte la teoría con su realidad: su empresa, su cultura, su presupuesto, su idioma.
+        </p>
+        <p style="margin-top: 20px;"
+           data-es="PeopleBot no es un canal de contenido. Es el comienzo de una plataforma de referencia que certifica, conecta y forma a los líderes de RRHH en habla hispana que lideran la era de la IA."
+           data-en="PeopleBot is not a content channel. It is the beginning of a reference platform that certifies, connects, and trains Spanish-speaking HR leaders driving the AI era.">
+          PeopleBot no es un canal de contenido. Es el comienzo de una plataforma de referencia que certifica, conecta y forma a los líderes de RRHH en habla hispana que lideran la era de la IA.
+        </p>
+      </div>
+    </div>
+
+    <div class="mission-pillars stagger-children" style="margin-top: 64px;">
+      <div class="pillar">
+        <div class="pillar-num">01</div>
+        <div class="pillar-title" data-es="Guía, no solo contenido" data-en="Guide, not just content">Guía, no solo contenido</div>
+        <div class="pillar-text"
+             data-es="La diferencia entre contenido y guía es la diferencia entre un buscador y un mentor. PeopleBot construye lealtad irreversible siendo el mentor que los profesionales de RRHH en Latinoamérica necesitan."
+             data-en="The difference between content and guidance is the difference between a search engine and a mentor. PeopleBot builds irreversible loyalty by being the mentor HR professionals in Latin America need.">
+          La diferencia entre contenido y guía es la diferencia entre un buscador y un mentor. PeopleBot construye lealtad irreversible siendo el mentor que los profesionales de RRHH en Latinoamérica necesitan.
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">02</div>
+        <div class="pillar-title" data-es="En tu idioma, en tu contexto" data-en="In your language, your context">En tu idioma, en tu contexto</div>
+        <div class="pillar-text"
+             data-es="Todo el conocimiento de PeopleBot está construido desde América Latina para América Latina y España. Sin adaptaciones. Sin traducciones. Desde la realidad de tu región."
+             data-en="All PeopleBot knowledge is built from Latin America for Latin America and Spain. No adaptations. No translations. From the reality of your region.">
+          Todo el conocimiento de PeopleBot está construido desde América Latina para América Latina y España. Sin adaptaciones. Sin traducciones. Desde la realidad de tu región.
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">03</div>
+        <div class="pillar-title" data-es="Práctica, no solo teoría" data-en="Practice, not just theory">Práctica, no solo teoría</div>
+        <div class="pillar-text"
+             data-es="Cada episodio, cada artículo, cada programa conecta la inteligencia artificial con decisiones reales de talento humano en empresas reales de la región."
+             data-en="Every episode, every article, every program connects AI to real HR decisions in real companies across the region.">
+          Cada episodio, cada artículo, cada programa conecta la inteligencia artificial con decisiones reales de talento humano en empresas reales de la región.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PRODUCTS ==================== -->
+<section class="products" id="productos">
+  <div class="container">
+    <div class="products-header fade-in">
+      <div>
+        <div class="section-eyebrow">
+          <span data-es="Lo que construimos" data-en="What we build">Lo que construimos</span>
+        </div>
+        <h2 data-es="Productos y servicios" data-en="Products &amp; services">Productos y servicios</h2>
+      </div>
+    </div>
+
+    <div class="products-grid stagger-children">
+
+      <!-- Podcast -->
+      <div class="product-card">
+        <div class="product-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zm-1 3a1 1 0 0 1 2 0v8a1 1 0 0 1-2 0V4zm-6 8c0 3.53 2.61 6.44 6 6.93V21H9v2h6v-2h-2v-2.07C16.39 18.44 19 15.53 19 12h-2a5 5 0 0 1-10 0H5z"/></svg>
+        </div>
+        <div class="product-tag" data-es="Audio · 17+ Episodios" data-en="Audio · 17+ Episodes">Audio · 17+ Episodios</div>
+        <div class="product-title" data-es="Podcast: IA en RRHH" data-en="Podcast: AI in HR">Podcast: IA en RRHH</div>
+        <div class="product-desc"
+             data-es="El podcast en español sobre inteligencia artificial y talento humano. Episodios profundos con casos prácticos, herramientas y perspectivas de líderes de la región."
+             data-en="The Spanish-language podcast on artificial intelligence and human talent. Deep episodes with practical cases, tools, and insights from regional leaders.">
+          El podcast en español sobre inteligencia artificial y talento humano. Episodios profundos con casos prácticos, herramientas y perspectivas de líderes de la región.
+        </div>
+        <a href="https://x.com/ThePeopleBot" target="_blank" class="product-link">
+          <span data-es="Escuchar episodios" data-en="Listen to episodes">Escuchar episodios</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="product-card">
+        <div class="product-icon">
+          <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+        </div>
+        <div class="product-tag" data-es="Newsletter · Semanal en Substack" data-en="Newsletter · Weekly on Substack">Newsletter · Semanal en Substack</div>
+        <div class="product-title">PeopleBot Weekly</div>
+        <div class="product-desc"
+             data-es="Cada semana: un análisis profundo de las herramientas de IA más relevantes para RRHH, casos de uso reales y las tendencias que definen el futuro del trabajo en habla hispana."
+             data-en="Every week: a deep analysis of the most relevant AI tools for HR, real use cases, and trends shaping the future of work in the Spanish-speaking world.">
+          Cada semana: un análisis profundo de las herramientas de IA más relevantes para RRHH, casos de uso reales y las tendencias que definen el futuro del trabajo en habla hispana.
+        </div>
+        <a href="https://substack.com/@gustavovalbuena" target="_blank" class="product-link">
+          <span data-es="Suscribirse gratis" data-en="Subscribe for free">Suscribirse gratis</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Consulting -->
+      <div class="product-card">
+        <div class="product-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+        </div>
+        <div class="product-tag" data-es="Servicios · Para Empresas" data-en="Services · For Enterprises">Servicios · Para Empresas</div>
+        <div class="product-title" data-es="Consultoría en IA para RRHH" data-en="AI Consulting for HR">Consultoría en IA para RRHH</div>
+        <div class="product-desc"
+             data-es="Acompañamos a equipos de talento humano en la evaluación, selección e implementación de herramientas de inteligencia artificial. Desde diagnóstico hasta adopción práctica con tu equipo."
+             data-en="We guide HR teams through the evaluation, selection, and implementation of AI tools. From diagnosis to practical adoption with your team.">
+          Acompañamos a equipos de talento humano en la evaluación, selección e implementación de herramientas de inteligencia artificial. Desde diagnóstico hasta adopción práctica con tu equipo.
+        </div>
+        <a href="#contacto" class="product-link">
+          <span data-es="Agendar una conversación" data-en="Schedule a conversation">Agendar una conversación</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Certification -->
+      <div class="product-card">
+        <div class="product-icon amber">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+        </div>
+        <div class="product-tag">
+          <span data-es="Formación · Próximamente" data-en="Training · Coming Soon">Formación · Próximamente</span>
+          <span class="badge-soon" data-es="Pronto" data-en="Soon">Pronto</span>
+        </div>
+        <div class="product-title" data-es="Certificación PeopleBot IA" data-en="PeopleBot AI Certification">Certificación PeopleBot IA</div>
+        <div class="product-desc"
+             data-es="La credencial de referencia para profesionales de RRHH en habla hispana que lideran la adopción de IA. Formación práctica, red de alumni y reconocimiento profesional en LinkedIn."
+             data-en="The reference credential for Spanish-speaking HR professionals leading AI adoption. Practical training, alumni network, and LinkedIn professional recognition.">
+          La credencial de referencia para profesionales de RRHH en habla hispana que lideran la adopción de IA. Formación práctica, red de alumni y reconocimiento profesional en LinkedIn.
+        </div>
+        <a href="#contacto" class="product-link amber-link">
+          <span data-es="Unirse a la lista de espera" data-en="Join the waitlist">Unirse a la lista de espera</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOUNDER ==================== -->
+<section class="founder" id="fundador">
+  <div class="container">
+    <div class="founder-grid fade-in">
+
+      <div class="founder-img-wrap">
+        <div class="founder-img">
+          <img src="assets/img/gustavo.jpg" alt="Gustavo Valbuena, Fundador de PeopleBot"
+               style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;">
+        </div>
+        <div class="founder-accent-frame"></div>
+      </div>
+
+      <div class="founder-content">
+        <div class="section-eyebrow">
+          <span data-es="El Fundador" data-en="The Founder">El Fundador</span>
+        </div>
+        <div class="founder-name">Gustavo Valbuena</div>
+        <div class="founder-role"
+             data-es="Fundador y CEO · PeopleBot"
+             data-en="Founder &amp; CEO · PeopleBot">Fundador y CEO · PeopleBot</div>
+        <div class="founder-bio">
+          <p data-es="Gustavo Valbuena es un estratega en la intersección de los recursos humanos y la inteligencia artificial. Con amplia experiencia en talento humano en América Latina, identificó la brecha más importante que enfrenta la región: los profesionales de RRHH necesitan un guía de confianza que los lleve de la confusión al dominio de la IA, no más contenido genérico."
+             data-en="Gustavo Valbuena is a strategist at the intersection of human resources and artificial intelligence. With extensive experience in HR across Latin America, he identified the most critical gap the region faces: HR professionals need a trusted guide to take them from confusion to AI mastery, not more generic content.">
+            Gustavo Valbuena es un estratega en la intersección de los recursos humanos y la inteligencia artificial. Con amplia experiencia en talento humano en América Latina, identificó la brecha más importante que enfrenta la región: los profesionales de RRHH necesitan un guía de confianza que los lleve de la confusión al dominio de la IA, no más contenido genérico.
+          </p>
+          <p data-es="Con PeopleBot, construye el ecosistema de conocimiento, comunidad y certificación que los líderes de talento humano en habla hispana necesitan para transformar sus organizaciones con IA."
+             data-en="With PeopleBot, he builds the knowledge, community, and certification ecosystem that Spanish-speaking HR leaders need to transform their organizations with AI.">
+            Con PeopleBot, construye el ecosistema de conocimiento, comunidad y certificación que los líderes de talento humano en habla hispana necesitan para transformar sus organizaciones con IA.
+          </p>
+        </div>
+        <div class="founder-ctas">
+          <a href="https://www.linkedin.com/in/gustavo-valbuena/" target="_blank" class="social-pill">
+            <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn Personal
+          </a>
+          <a href="https://www.linkedin.com/company/people-bot/" target="_blank" class="social-pill">
+            <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            PeopleBot Company
+          </a>
+          <a href="https://substack.com/@gustavovalbuena" target="_blank" class="social-pill">
+            <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+            Substack
+          </a>
+          <a href="https://x.com/ThePeopleBot" target="_blank" class="social-pill">
+            <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X / Twitter
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== NEWSLETTER CTA ==================== -->
+<section class="newsletter-section">
+  <div class="container">
+    <div class="newsletter-inner fade-in">
+      <div>
+        <div class="newsletter-headline"
+             data-es="El newsletter semanal de IA para RRHH en español"
+             data-en="The weekly AI for HR newsletter in Spanish">
+          El newsletter semanal de IA para RRHH en español
+        </div>
+        <p class="newsletter-sub"
+           data-es="Cada semana en tu bandeja: herramientas, análisis y casos prácticos. Sin ruido. Sin traducciones. Directo al punto."
+           data-en="Every week in your inbox: tools, analysis, and practical cases. No noise. No translations. Straight to the point.">
+          Cada semana en tu bandeja: herramientas, análisis y casos prácticos. Sin ruido. Sin traducciones. Directo al punto.
+        </p>
+      </div>
+      <div class="nl-form">
+        <div class="nl-field">
+          <input type="email" id="nlEmail" class="nl-input"
+                 data-placeholder-es="tu@email.com"
+                 data-placeholder-en="you@email.com"
+                 placeholder="tu@email.com">
+          <button class="nl-submit" onclick="handleNewsletterSubscribe()"
+                  data-es="Suscribirme" data-en="Subscribe">Suscribirme</button>
+        </div>
+        <p class="nl-note"
+           data-es="Al hacer clic te redirigiremos a Substack para confirmar. Sin spam, siempre."
+           data-en="Clicking will redirect you to Substack to confirm. No spam, ever.">
+          Al hacer clic te redirigiremos a Substack para confirmar. Sin spam, siempre.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CONTACT ==================== -->
+<section class="contact" id="contacto">
+  <div class="container">
+    <div class="section-eyebrow">
+      <span data-es="Hablemos" data-en="Let's Talk">Hablemos</span>
+    </div>
+    <h2 data-es="¿Listo para adoptar IA en tu equipo?" data-en="Ready to adopt AI in your team?">
+      ¿Listo para adoptar IA en tu equipo?
+    </h2>
+
+    <div class="contact-grid fade-in">
+      <div>
+        <p style="margin-bottom: 40px;"
+           data-es="¿Tu empresa necesita adoptar IA en talento humano? ¿Quieres explorar una colaboración, una sesión de consultoría o la certificación? Escríbenos directamente."
+           data-en="Does your company need to adopt AI in HR? Want to explore a collaboration, consulting session, or certification? Write to us directly.">
+          ¿Tu empresa necesita adoptar IA en talento humano? ¿Quieres explorar una colaboración, una sesión de consultoría o la certificación? Escríbenos directamente.
+        </p>
+
+        <div class="contact-block">
+          <div class="contact-block-label" data-es="Fundador" data-en="Founder">Fundador</div>
+          <div class="contact-block-value">Gustavo Valbuena</div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-block-label">LinkedIn</div>
+          <div class="contact-block-value">
+            <a href="https://www.linkedin.com/in/gustavo-valbuena/" target="_blank">linkedin.com/in/gustavo-valbuena</a>
+          </div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-block-label" data-es="Empresa" data-en="Company">Empresa</div>
+          <div class="contact-block-value">
+            <a href="https://www.linkedin.com/company/people-bot/" target="_blank">linkedin.com/company/people-bot</a>
+          </div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-block-label">Substack</div>
+          <div class="contact-block-value">
+            <a href="https://substack.com/@gustavovalbuena" target="_blank">substack.com/@gustavovalbuena</a>
+          </div>
+        </div>
+
+        <div class="contact-socials">
+          <a href="https://www.linkedin.com/in/gustavo-valbuena/" target="_blank" class="contact-social-pill">
+            <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+          <a href="https://x.com/ThePeopleBot" target="_blank" class="contact-social-pill">
+            <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X (Twitter)
+          </a>
+          <a href="https://www.instagram.com/thepeoplebot/" target="_blank" class="contact-social-pill">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+            Instagram
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61566569934779" target="_blank" class="contact-social-pill">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </a>
+          <a href="https://substack.com/@gustavovalbuena" target="_blank" class="contact-social-pill">
+            <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+            Substack
+          </a>
+        </div>
+      </div>
+
+      <!-- Contact form -->
+      <form class="cform" onsubmit="handleContact(event)">
+        <div class="cf-row">
+          <label class="cf-label" data-es="Nombre" data-en="Name">Nombre</label>
+          <input type="text" class="cf-input"
+                 data-placeholder-es="Tu nombre completo"
+                 data-placeholder-en="Your full name"
+                 placeholder="Tu nombre completo">
+        </div>
+        <div class="cf-row">
+          <label class="cf-label">Email</label>
+          <input type="email" class="cf-input"
+                 data-placeholder-es="tu@email.com"
+                 data-placeholder-en="you@email.com"
+                 placeholder="tu@email.com">
+        </div>
+        <div class="cf-row">
+          <label class="cf-label" data-es="Empresa" data-en="Company">Empresa</label>
+          <input type="text" class="cf-input"
+                 data-placeholder-es="Tu empresa (opcional)"
+                 data-placeholder-en="Your company (optional)"
+                 placeholder="Tu empresa (opcional)">
+        </div>
+        <div class="cf-row">
+          <label class="cf-label" data-es="¿Cómo podemos ayudarte?" data-en="How can we help?">¿Cómo podemos ayudarte?</label>
+          <textarea class="cf-textarea"
+                    data-placeholder-es="Cuéntanos sobre tu proyecto o necesidad..."
+                    data-placeholder-en="Tell us about your project or need..."
+                    placeholder="Cuéntanos sobre tu proyecto o necesidad..."></textarea>
+        </div>
+        <button type="submit" class="btn-dark"
+                data-es="Enviar mensaje" data-en="Send message">Enviar mensaje</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <a href="#inicio" class="nav-logo">
+          <img src="assets/img/logo.svg" alt="PeopleBot" style="height:42px;width:auto;filter:brightness(0) invert(1);">
+        </a>
+        <p class="footer-brand-text"
+           data-es="La plataforma de referencia para profesionales de talento humano en habla hispana que lideran la era de la inteligencia artificial."
+           data-en="The reference platform for Spanish-speaking HR professionals leading the artificial intelligence era.">
+          La plataforma de referencia para profesionales de talento humano en habla hispana que lideran la era de la inteligencia artificial.
+        </p>
+      </div>
+
+      <div>
+        <div class="footer-col-head" data-es="Navegación" data-en="Navigation">Navegación</div>
+        <ul class="footer-col-links">
+          <li><a href="#mision"    data-es="Misión"    data-en="Mission">Misión</a></li>
+          <li><a href="#productos" data-es="Productos" data-en="Products">Productos</a></li>
+          <li><a href="#fundador"  data-es="Fundador"  data-en="Founder">Fundador</a></li>
+          <li><a href="#contacto"  data-es="Contacto"  data-en="Contact">Contacto</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-head" data-es="Productos" data-en="Products">Productos</div>
+        <ul class="footer-col-links">
+          <li><a href="https://substack.com/@gustavovalbuena" target="_blank">Newsletter</a></li>
+          <li><a href="https://x.com/ThePeopleBot" target="_blank">Podcast</a></li>
+          <li><a href="#contacto" data-es="Consultoría" data-en="Consulting">Consultoría</a></li>
+          <li><a href="#contacto" data-es="Certificación" data-en="Certification">Certificación</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-head" data-es="Comunidad" data-en="Community">Comunidad</div>
+        <ul class="footer-col-links">
+          <li><a href="https://www.linkedin.com/in/gustavo-valbuena/" target="_blank">LinkedIn Gustavo</a></li>
+          <li><a href="https://www.linkedin.com/company/people-bot/" target="_blank">LinkedIn PeopleBot</a></li>
+          <li><a href="https://x.com/ThePeopleBot" target="_blank">X / Twitter</a></li>
+          <li><a href="https://www.instagram.com/thepeoplebot/" target="_blank">Instagram</a></li>
+          <li><a href="https://www.facebook.com/profile.php?id=61566569934779" target="_blank">Facebook</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">
+        &copy; 2026 PeopleBot.
+        <span data-es="Todos los derechos reservados." data-en="All rights reserved.">Todos los derechos reservados.</span>
+      </div>
+      <div class="footer-socials">
+        <a href="https://www.linkedin.com/in/gustavo-valbuena/" target="_blank" class="footer-soc-btn" title="LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="https://x.com/ThePeopleBot" target="_blank" class="footer-soc-btn" title="X">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/thepeoplebot/" target="_blank" class="footer-soc-btn" title="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/profile.php?id=61566569934779" target="_blank" class="footer-soc-btn" title="Facebook">
+          <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="https://substack.com/@gustavovalbuena" target="_blank" class="footer-soc-btn" title="Substack">
+          <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+  /* === LANGUAGE SYSTEM === */
+  let lang = 'es';
+
+  function setLang(l) {
+    lang = l;
+    document.documentElement.lang = l;
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === l);
+    });
+
+    document.querySelectorAll('[data-es][data-en]').forEach(el => {
+      el.innerHTML = el.dataset[l] || el.innerHTML;
+    });
+
+    document.querySelectorAll('[data-placeholder-es]').forEach(el => {
+      el.placeholder = l === 'es' ? el.dataset.placeholderEs : el.dataset.placeholderEn;
+    });
+
+    document.title = l === 'es'
+      ? 'PeopleBot | IA para Talento Humano en Habla Hispana'
+      : 'PeopleBot | AI for Spanish-Speaking HR Professionals';
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLang(btn.dataset.lang));
+  });
+
+  /* === NAVBAR SCROLL === */
+  const nav = document.getElementById('mainNav');
+  function checkScroll() {
+    nav.classList.toggle('scrolled', window.scrollY > 32);
+  }
+  window.addEventListener('scroll', checkScroll, { passive: true });
+  checkScroll();
+
+  /* === MOBILE MENU === */
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+  let menuOpen = false;
+
+  hamburger.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    mobileNav.classList.toggle('open', menuOpen);
+    const [s1, s2, s3] = hamburger.querySelectorAll('span');
+    if (menuOpen) {
+      s1.style.transform = 'rotate(45deg) translate(5px, 5px)';
+      s2.style.opacity = '0';
+      s3.style.transform = 'rotate(-45deg) translate(5px, -5px)';
+    } else {
+      [s1, s2, s3].forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+    }
+  });
+
+  function closeMobile() {
+    menuOpen = false;
+    mobileNav.classList.remove('open');
+    hamburger.querySelectorAll('span').forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  }
+
+  /* === SCROLL ANIMATIONS === */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-in, .stagger-children').forEach(el => io.observe(el));
+
+  /* === SMOOTH ANCHOR SCROLL === */
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      const id = link.getAttribute('href');
+      if (id === '#') return;
+      const target = document.querySelector(id);
+      if (target) {
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: 'smooth' });
+        closeMobile();
+      }
+    });
+  });
+
+  /* === NEWSLETTER SUBSCRIBE === */
+  function handleNewsletterSubscribe() {
+    const email = document.getElementById('nlEmail').value.trim();
+    if (email && email.includes('@')) {
+      window.open('https://substack.com/@gustavovalbuena', '_blank');
+    } else {
+      const msg = lang === 'es' ? 'Por favor ingresa un email válido.' : 'Please enter a valid email.';
+      alert(msg);
+    }
+  }
+
+  /* === CONTACT FORM === */
+  function handleContact(e) {
+    e.preventDefault();
+    window.open('https://www.linkedin.com/in/gustavo-valbuena/', '_blank');
+  }
+
+  /* === HERO FADE-IN ON LOAD === */
+  window.addEventListener('load', () => {
+    document.querySelector('.hero-eyebrow').style.transition = 'opacity .8s .1s, transform .8s .1s';
+    document.querySelector('.hero-eyebrow').style.opacity = '1';
+    document.querySelector('.hero-headline').style.transition = 'opacity .9s .25s, transform .9s .25s';
+    document.querySelector('.hero-headline').style.opacity = '1';
+    document.querySelector('.hero-sub').style.transition = 'opacity .9s .45s, transform .9s .45s';
+    document.querySelector('.hero-sub').style.opacity = '1';
+    document.querySelector('.hero-ctas').style.transition = 'opacity .9s .65s, transform .9s .65s';
+    document.querySelector('.hero-ctas').style.opacity = '1';
+    // Cards
+    document.querySelectorAll('.hero-card').forEach((card, i) => {
+      card.style.transition = `opacity .7s ${0.5 + i * 0.12}s, transform .7s ${0.5 + i * 0.12}s`;
+      card.style.opacity = '1';
+      card.style.transform = 'none';
+    });
+  });
+
+  // Set initial hidden states
+  ['.hero-eyebrow', '.hero-headline', '.hero-sub', '.hero-ctas'].forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(18px)'; }
+  });
+  document.querySelectorAll('.hero-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(16px)';
+  });
+</script>
+
+</body>
+</html>
