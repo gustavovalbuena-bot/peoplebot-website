@@ -736,6 +736,76 @@
     .hero-actions .btn { justify-content: center; }
     h1 { font-size: 2.5rem; }
   }
+
+  /* ══════════════════════════════════════════
+     PRIVACY MODAL
+  ══════════════════════════════════════════ */
+  .priv-overlay {
+    position: fixed; inset: 0;
+    background: rgba(8,14,28,.72);
+    backdrop-filter: blur(6px);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+  }
+  .priv-overlay.open { opacity: 1; pointer-events: all; }
+  .priv-modal {
+    background: var(--white);
+    border-radius: calc(var(--r) + 4px);
+    max-width: 720px; width: 100%;
+    max-height: 86vh; overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    padding: 48px;
+    position: relative;
+  }
+  .priv-close {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted);
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border-radius: var(--r); transition: background .2s;
+  }
+  .priv-close:hover { background: var(--slate-100); }
+  .priv-modal h2 { font-size: 1.75rem; margin-bottom: 8px; color: var(--text-dark); }
+  .priv-modal h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin: 28px 0 8px; }
+  .priv-modal p  { font-size: .9375rem; color: var(--text-mid); margin-bottom: 12px; }
+  .priv-meta { font-size: .8rem; color: var(--text-muted); margin-bottom: 30px; padding-bottom: 24px; border-bottom: 1px solid var(--border-lt); }
+  .priv-badge {
+    display: inline-block;
+    background: var(--blue-light); color: var(--blue);
+    font-size: .68rem; font-weight: 700;
+    letter-spacing: .09em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+  }
+  @media (max-width: 640px) { .priv-modal { padding: 28px 22px; } }
+
+  /* Cookie banner */
+  .cookie-banner {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--ink-deep);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 16px 32px;
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    z-index: 400;
+    transform: translateY(100%);
+    transition: transform .4s ease;
+  }
+  .cookie-banner.visible { transform: translateY(0); }
+  .cookie-text { font-size: .875rem; color: rgba(255,255,255,.6); flex: 1; min-width: 200px; }
+  .cookie-text a { color: var(--blue); text-decoration: underline; }
+  .cookie-actions { display: flex; gap: 10px; flex-shrink: 0; }
+  .cookie-btn {
+    font-family: var(--sans); font-size: .875rem; font-weight: 600;
+    padding: 9px 20px; border-radius: var(--r); border: none; cursor: pointer; transition: all .2s;
+  }
+  .cookie-accept  { background: var(--blue); color: #fff; }
+  .cookie-accept:hover { background: var(--blue-hover); }
+  .cookie-decline { background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); }
+  .cookie-decline:hover { background: rgba(255,255,255,.14); }
   </style>
 </head>
 <body>
@@ -959,8 +1029,8 @@
         <div class="pcard-tag" data-es="Audio · 17+ Episodios" data-en="Audio · 17+ Episodes">Audio · 17+ Episodios</div>
         <div class="pcard-title" data-es="Podcast: IA en RRHH" data-en="Podcast: AI in HR">Podcast: IA en RRHH</div>
         <div class="pcard-desc" data-es="El podcast en español sobre inteligencia artificial y talento humano. Episodios profundos con casos prácticos, herramientas y perspectivas de líderes de la región." data-en="The Spanish-language podcast on AI and human talent. Deep episodes with practical cases, tools, and insights from regional leaders.">El podcast en español sobre inteligencia artificial y talento humano. Episodios profundos con casos prácticos, herramientas y perspectivas de líderes de la región.</div>
-        <a href="https://x.com/ThePeopleBot" target="_blank" class="pcard-link">
-          <span data-es="Escuchar episodios" data-en="Listen to episodes">Escuchar episodios</span>
+        <a href="https://open.spotify.com/show/3H2KMRuICiKzfw5g3WQrwf?si=378253d7a6504b55" target="_blank" class="pcard-link">
+          <span data-es="Escuchar en Spotify" data-en="Listen on Spotify">Escuchar en Spotify</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
@@ -1033,9 +1103,9 @@
              data-es="Fundador y CEO · PeopleBot"
              data-en="Founder &amp; CEO · PeopleBot">Fundador y CEO · PeopleBot</div>
         <div class="founder-bio">
-          <p data-es="Gustavo Valbuena es estratega en la intersección de los recursos humanos y la inteligencia artificial. Actualmente lidera la función de IA para People Analytics en una organización, lo que le permite entender de primera mano los casos de uso reales, los obstáculos de adopción y el impacto concreto de la IA en las decisiones de talento."
-             data-en="Gustavo Valbuena is a strategist at the intersection of human resources and artificial intelligence. He currently leads the AI function for People Analytics within an organization, giving him first-hand understanding of real use cases, adoption challenges, and the concrete impact of AI on talent decisions.">
-            Gustavo Valbuena es estratega en la intersección de los recursos humanos y la inteligencia artificial. Actualmente lidera la función de IA para People Analytics en una organización, lo que le permite entender de primera mano los casos de uso reales, los obstáculos de adopción y el impacto concreto de la IA en las decisiones de talento.
+          <p data-es="Gustavo Valbuena es estratega en la intersección de los recursos humanos y la inteligencia artificial, con más de 20 años de experiencia en la función de talento humano. Ha liderado como HRBP y ha dirigido centros de excelencia en LATAM y Estados Unidos. Actualmente lidera la función de IA para People Analytics en una empresa Fortune 5 con más de un millón de empleados, lo que le permite entender de primera mano los casos de uso reales, los obstáculos de adopción y el impacto concreto de la IA en las decisiones de talento."
+             data-en="Gustavo Valbuena is a strategist at the intersection of human resources and artificial intelligence, with more than 20 years of experience in the HR function. He has led as an HRBP and has managed centers of excellence across LATAM and the United States. He currently leads the AI function for People Analytics at a Fortune 5 company with over one million employees, giving him first-hand understanding of real use cases, adoption challenges, and the concrete impact of AI on talent decisions.">
+            Gustavo Valbuena es estratega en la intersección de los recursos humanos y la inteligencia artificial, con más de 20 años de experiencia en la función de talento humano. Ha liderado como HRBP y ha dirigido centros de excelencia en LATAM y Estados Unidos. Actualmente lidera la función de IA para People Analytics en una empresa Fortune 5 con más de un millón de empleados, lo que le permite entender de primera mano los casos de uso reales, los obstáculos de adopción y el impacto concreto de la IA en las decisiones de talento.
           </p>
           <p data-es="Esa experiencia práctica es la que da vida a PeopleBot: una plataforma que no traduce contenido de Silicon Valley, sino que construye conocimiento desde la realidad de las empresas en América Latina y España. Con podcast, newsletter semanal, consultoría y certificación, PeopleBot forma a los líderes de RRHH que están definiendo cómo se adopta la IA en habla hispana."
              data-en="That hands-on experience is what drives PeopleBot: a platform that doesn't translate Silicon Valley content, but builds knowledge from the reality of companies in Latin America and Spain. Through podcast, weekly newsletter, consulting, and certification, PeopleBot trains the HR leaders defining how AI adoption happens in the Spanish-speaking world.">
@@ -1058,6 +1128,10 @@
           <a href="https://x.com/ThePeopleBot" target="_blank" class="social-btn">
             <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             X / Twitter
+          </a>
+          <a href="https://open.spotify.com/show/3H2KMRuICiKzfw5g3WQrwf?si=378253d7a6504b55" target="_blank" class="social-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+            Spotify Podcast
           </a>
         </div>
       </div>
@@ -1154,6 +1228,10 @@
             <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
             Substack
           </a>
+          <a href="https://open.spotify.com/show/3H2KMRuICiKzfw5g3WQrwf?si=378253d7a6504b55" target="_blank" class="csoc">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+            Spotify
+          </a>
         </div>
       </div>
 
@@ -1213,13 +1291,14 @@
           <li><a href="#productos" data-es="Productos" data-en="Products">Productos</a></li>
           <li><a href="#fundador"  data-es="Fundador"  data-en="Founder">Fundador</a></li>
           <li><a href="#contacto"  data-es="Contacto"  data-en="Contact">Contacto</a></li>
+          <li><a href="#" onclick="openPriv(); return false;" data-es="Política de Privacidad" data-en="Privacy Policy">Política de Privacidad</a></li>
         </ul>
       </div>
       <div>
         <div class="footer-col-title" data-es="Productos" data-en="Products">Productos</div>
         <ul class="footer-links">
           <li><a href="https://substack.com/@gustavovalbuena" target="_blank">Newsletter</a></li>
-          <li><a href="https://x.com/ThePeopleBot" target="_blank">Podcast</a></li>
+          <li><a href="https://open.spotify.com/show/3H2KMRuICiKzfw5g3WQrwf?si=378253d7a6504b55" target="_blank">Podcast (Spotify)</a></li>
           <li><a href="#contacto" data-es="Consultoría" data-en="Consulting">Consultoría</a></li>
           <li><a href="#contacto" data-es="Certificación" data-en="Certification">Certificación</a></li>
         </ul>
@@ -1257,10 +1336,94 @@
         <a href="https://substack.com/@gustavovalbuena" target="_blank" class="fsoc">
           <svg viewBox="0 0 24 24"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
         </a>
+        <a href="https://open.spotify.com/show/3H2KMRuICiKzfw5g3WQrwf?si=378253d7a6504b55" target="_blank" class="fsoc">
+          <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </a>
       </div>
     </div>
   </div>
 </footer>
+
+<!-- ═══════════ PRIVACY MODAL ═══════════ -->
+<div class="priv-overlay" id="privModal" role="dialog" aria-modal="true" aria-labelledby="privTitle">
+  <div class="priv-modal">
+    <button class="priv-close" onclick="closePriv()" aria-label="Cerrar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="priv-badge">Legal · Arkansas, EE. UU.</div>
+    <h2 id="privTitle"
+        data-es="Política de Privacidad y Tratamiento de Datos"
+        data-en="Privacy Policy and Data Treatment">
+      Política de Privacidad y Tratamiento de Datos
+    </h2>
+    <p class="priv-meta"
+       data-es="Vigente desde el 1 de enero de 2025 · PeopleBot LLC · Estado de Arkansas, Estados Unidos"
+       data-en="Effective January 1, 2025 · PeopleBot LLC · State of Arkansas, United States">
+      Vigente desde el 1 de enero de 2025 · PeopleBot LLC · Estado de Arkansas, Estados Unidos
+    </p>
+
+    <h3 data-es="1. Responsable del tratamiento" data-en="1. Data Controller">1. Responsable del tratamiento</h3>
+    <p data-es="PeopleBot LLC, con sede en el estado de Arkansas, Estados Unidos, es el responsable del tratamiento de los datos personales recopilados a través de este sitio web y de los servicios asociados (newsletter, consultoría y podcast)."
+       data-en="PeopleBot LLC, based in the state of Arkansas, United States, is the controller responsible for processing personal data collected through this website and associated services (newsletter, consulting, and podcast).">
+      PeopleBot LLC, con sede en el estado de Arkansas, Estados Unidos, es el responsable del tratamiento de los datos personales recopilados a través de este sitio web y de los servicios asociados (newsletter, consultoría y podcast).
+    </p>
+
+    <h3 data-es="2. Datos que recopilamos" data-en="2. Data We Collect">2. Datos que recopilamos</h3>
+    <p data-es="Recopilamos únicamente los datos que usted proporciona voluntariamente: nombre, dirección de email y empresa (opcional) al suscribirse al newsletter o enviarnos un mensaje de contacto. No recopilamos datos sensibles, información financiera ni datos de menores de 13 años de edad."
+       data-en="We collect only data you voluntarily provide: name, email address, and company (optional) when subscribing to the newsletter or sending a contact message. We do not collect sensitive data, financial information, or data from children under 13 years of age.">
+      Recopilamos únicamente los datos que usted proporciona voluntariamente: nombre, dirección de email y empresa (opcional) al suscribirse al newsletter o enviarnos un mensaje de contacto. No recopilamos datos sensibles, información financiera ni datos de menores de 13 años de edad.
+    </p>
+
+    <h3 data-es="3. Finalidad del tratamiento" data-en="3. Purpose of Processing">3. Finalidad del tratamiento</h3>
+    <p data-es="Sus datos se utilizan exclusivamente para: (a) enviar el newsletter semanal PeopleBot Weekly, (b) responder solicitudes de contacto y consultoría, y (c) mejorar la calidad de los contenidos. No vendemos, alquilamos ni compartimos su información con terceros con fines comerciales."
+       data-en="Your data is used exclusively to: (a) send the PeopleBot Weekly newsletter, (b) respond to contact and consulting requests, and (c) improve content quality. We do not sell, rent, or share your information with third parties for commercial purposes.">
+      Sus datos se utilizan exclusivamente para: (a) enviar el newsletter semanal PeopleBot Weekly, (b) responder solicitudes de contacto y consultoría, y (c) mejorar la calidad de los contenidos. No vendemos, alquilamos ni compartimos su información con terceros con fines comerciales.
+    </p>
+
+    <h3 data-es="4. Marco legal aplicable" data-en="4. Applicable Legal Framework">4. Marco legal aplicable</h3>
+    <p data-es="Esta política cumple con la Ley de Privacidad de Datos de Arkansas (Arkansas Data Privacy Act, Act 2023 No. 1218, en vigor desde el 1 de julio de 2025) y con el CAN-SPAM Act federal de Estados Unidos para comunicaciones comerciales por correo electrónico. Para suscriptores en España y América Latina, aplicamos adicionalmente los principios del RGPD europeo como estándar de referencia."
+       data-en="This policy complies with the Arkansas Data Privacy Act (Act 2023 No. 1218, effective July 1, 2025) and the federal CAN-SPAM Act for commercial email communications. For subscribers in Spain and Latin America, we additionally apply the principles of the EU GDPR as a reference standard.">
+      Esta política cumple con la Ley de Privacidad de Datos de Arkansas (Arkansas Data Privacy Act, Act 2023 No. 1218, en vigor desde el 1 de julio de 2025) y con el CAN-SPAM Act federal de Estados Unidos para comunicaciones comerciales por correo electrónico. Para suscriptores en España y América Latina, aplicamos adicionalmente los principios del RGPD europeo como estándar de referencia.
+    </p>
+
+    <h3 data-es="5. Plataformas de terceros" data-en="5. Third-Party Platforms">5. Plataformas de terceros</h3>
+    <p data-es="PeopleBot utiliza Substack para la gestión del newsletter. Al suscribirse, sus datos son también tratados por Substack Inc. bajo sus propias políticas de privacidad (substack.com/privacy). El podcast está alojado en Spotify, que opera bajo sus propias condiciones de uso (spotify.com/privacy)."
+       data-en="PeopleBot uses Substack to manage the newsletter. Upon subscribing, your data is also processed by Substack Inc. under their own privacy policies (substack.com/privacy). The podcast is hosted on Spotify, which operates under its own terms of use (spotify.com/privacy).">
+      PeopleBot utiliza Substack para la gestión del newsletter. Al suscribirse, sus datos son también tratados por Substack Inc. bajo sus propias políticas de privacidad (substack.com/privacy). El podcast está alojado en Spotify, que opera bajo sus propias condiciones de uso (spotify.com/privacy).
+    </p>
+
+    <h3 data-es="6. Sus derechos" data-en="6. Your Rights">6. Sus derechos</h3>
+    <p data-es="Usted tiene derecho a: acceder a sus datos, corregirlos, solicitar su eliminación, oponerse al tratamiento y retirar su consentimiento en cualquier momento. Para ejercer estos derechos, contáctenos a través del formulario de contacto en este sitio o directamente en LinkedIn: linkedin.com/in/gustavo-valbuena."
+       data-en="You have the right to: access your data, correct it, request its deletion, object to processing, and withdraw consent at any time. To exercise these rights, contact us through the contact form on this site or directly on LinkedIn: linkedin.com/in/gustavo-valbuena.">
+      Usted tiene derecho a: acceder a sus datos, corregirlos, solicitar su eliminación, oponerse al tratamiento y retirar su consentimiento en cualquier momento. Para ejercer estos derechos, contáctenos a través del formulario de contacto en este sitio o directamente en LinkedIn: linkedin.com/in/gustavo-valbuena.
+    </p>
+
+    <h3 data-es="7. Retención de datos" data-en="7. Data Retention">7. Retención de datos</h3>
+    <p data-es="Conservamos sus datos mientras mantenga la suscripción activa o la relación comercial vigente. Al cancelar la suscripción, sus datos son eliminados de nuestros sistemas en un plazo máximo de 30 días hábiles."
+       data-en="We retain your data while your subscription or business relationship is active. Upon unsubscribing, your data is deleted from our systems within a maximum of 30 business days.">
+      Conservamos sus datos mientras mantenga la suscripción activa o la relación comercial vigente. Al cancelar la suscripción, sus datos son eliminados de nuestros sistemas en un plazo máximo de 30 días hábiles.
+    </p>
+
+    <h3 data-es="8. Contacto sobre privacidad" data-en="8. Privacy Contact">8. Contacto sobre privacidad</h3>
+    <p data-es="Para cualquier consulta relacionada con el tratamiento de sus datos, puede contactarnos a través de LinkedIn: linkedin.com/in/gustavo-valbuena o a través del formulario de contacto en este sitio web. Responderemos en un plazo de 10 días hábiles."
+       data-en="For any inquiries related to the processing of your data, contact us via LinkedIn: linkedin.com/in/gustavo-valbuena or through the contact form on this website. We will respond within 10 business days.">
+      Para cualquier consulta relacionada con el tratamiento de sus datos, puede contactarnos a través de LinkedIn: linkedin.com/in/gustavo-valbuena o a través del formulario de contacto en este sitio web. Responderemos en un plazo de 10 días hábiles.
+    </p>
+  </div>
+</div>
+
+<!-- Cookie Consent Banner -->
+<div class="cookie-banner" id="cookieBanner">
+  <p class="cookie-text">
+    <span data-es="Usamos cookies esenciales para el funcionamiento del sitio. Al continuar navegando, aceptas nuestra " data-en="We use essential cookies for site functionality. By continuing to browse, you accept our ">Usamos cookies esenciales para el funcionamiento del sitio. Al continuar navegando, aceptas nuestra </span><a href="#" onclick="openPriv(); return false;" data-es="Política de Privacidad" data-en="Privacy Policy">Política de Privacidad</a>.
+  </p>
+  <div class="cookie-actions">
+    <button class="cookie-btn cookie-decline" onclick="dismissCookie()"
+            data-es="Solo esenciales" data-en="Essential only">Solo esenciales</button>
+    <button class="cookie-btn cookie-accept" onclick="acceptCookie()"
+            data-es="Aceptar" data-en="Accept">Aceptar</button>
+  </div>
+</div>
 
 <!-- ═══════════ JAVASCRIPT ═══════════ -->
 <script>
@@ -1331,6 +1494,34 @@
   function handleContact(e) {
     e.preventDefault();
     window.open('https://www.linkedin.com/in/gustavo-valbuena/', '_blank');
+  }
+
+  /* ── PRIVACY MODAL ── */
+  function openPriv() {
+    document.getElementById('privModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePriv() {
+    document.getElementById('privModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('privModal').addEventListener('click', function(e) {
+    if (e.target === this) closePriv();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePriv(); });
+
+  /* ── COOKIE BANNER ── */
+  const cookieBanner = document.getElementById('cookieBanner');
+  if (!localStorage.getItem('pb_cookie_consent')) {
+    setTimeout(() => cookieBanner.classList.add('visible'), 1400);
+  }
+  function acceptCookie() {
+    localStorage.setItem('pb_cookie_consent', 'accepted');
+    cookieBanner.classList.remove('visible');
+  }
+  function dismissCookie() {
+    localStorage.setItem('pb_cookie_consent', 'essential');
+    cookieBanner.classList.remove('visible');
   }
 </script>
 </body>
