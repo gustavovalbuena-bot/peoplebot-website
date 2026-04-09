@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PeopleBot — Dashboard de Clientes</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --ink:    #0F172A;
+      --ink-mid:#1E2D45;
+      --blue:   #2563EB;
+      --blue-lt:#DBEAFE;
+      --gold:   #D97706;
+      --gold-lt:#FEF3C7;
+      --green:  #16a34a;
+      --green-lt:#DCFCE7;
+      --red:    #dc2626;
+      --red-lt: #FEE2E2;
+      --slate:  #F8FAFC;
+      --border: #E2E8F0;
+      --text:   #1E293B;
+      --muted:  #64748B;
+      --white:  #ffffff;
+      --r:      8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--slate); color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: 220px; background: var(--ink);
+      display: flex; flex-direction: column;
+      padding: 24px 0; z-index: 100;
+    }
+    .sb-logo {
+      font-family: Georgia, serif; font-size: 1.25rem;
+      color: #fff; padding: 0 24px 24px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sb-logo span { color: var(--gold); }
+    .sb-nav { padding: 20px 12px; flex: 1; }
+    .sb-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: var(--r);
+      color: rgba(255,255,255,.6); font-size: .875rem;
+      cursor: pointer; transition: all .2s; margin-bottom: 4px;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .sb-item:hover, .sb-item.active {
+      background: rgba(255,255,255,.08); color: #fff;
+    }
+    .sb-item.active { color: var(--gold); }
+    .sb-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      font-size: .75rem; color: rgba(255,255,255,.3);
+    }
+
+    /* ── MAIN ── */
+    .main { margin-left: 220px; padding: 32px; }
+
+    .topbar {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 32px;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .topbar h1 { font-size: 1.5rem; font-weight: 700; }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    .badge-live {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-lt); color: var(--green);
+      font-size: .75rem; font-weight: 700; padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .badge-live::before {
+      content: ''; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green); display: block;
+    }
+
+    .btn {
+      font-size: .875rem; font-weight: 600; padding: 8px 18px;
+      border-radius: var(--r); border: none; cursor: pointer; transition: all .2s;
+    }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 20px; margin-bottom: 28px;
+    }
+    .kpi {
+      background: var(--white); border-radius: var(--r);
+      border: 1px solid var(--border); padding: 24px;
+    }
+    .kpi-label { font-size: .75rem; font-weight: 700; color: var(--muted); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 8px; }
+    .kpi-value { font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .kpi-sub   { font-size: .8rem; color: var(--muted); margin-top: 6px; }
+    .kpi-delta { display: inline-flex; align-items: center; gap: 4px; font-size: .78rem; font-weight: 700; margin-top: 8px; }
+    .up   { color: var(--green); }
+    .down { color: var(--red); }
+
+    /* ── CHARTS ROW ── */
+    .charts-row {
+      display: grid; grid-template-columns: 2fr 1fr;
+      gap: 20px; margin-bottom: 28px;
+    }
+    .card {
+      background: var(--white); border-radius: var(--r);
+      border: 1px solid var(--border); padding: 24px;
+    }
+    .card-title { font-size: .875rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+
+    /* ── FILTERS ── */
+    .filters {
+      display: flex; gap: 10px; align-items: center;
+      margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .filter-input {
+      flex: 1; min-width: 200px; padding: 9px 14px;
+      border: 1px solid var(--border); border-radius: var(--r);
+      font-size: .875rem; outline: none;
+    }
+    .filter-input:focus { border-color: var(--blue); }
+    .filter-select {
+      padding: 9px 14px; border: 1px solid var(--border);
+      border-radius: var(--r); font-size: .875rem;
+      background: var(--white); outline: none; cursor: pointer;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+    thead tr { background: var(--slate); }
+    th {
+      text-align: left; padding: 10px 14px;
+      font-size: .72rem; font-weight: 700; color: var(--muted);
+      letter-spacing: .07em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+      cursor: pointer; user-select: none;
+    }
+    th:hover { color: var(--blue); }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--slate); }
+    .td-name { font-weight: 600; }
+    .td-email { color: var(--blue); }
+    .td-empresa { color: var(--muted); }
+    .td-date { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+    .td-msg { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+
+    /* ── SETUP BANNER ── */
+    .setup-banner {
+      background: linear-gradient(135deg, #FEF3C7, #FFFBEB);
+      border: 1px solid #FCD34D; border-radius: var(--r);
+      padding: 20px 24px; margin-bottom: 28px;
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .setup-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .setup-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: #92400E; }
+    .setup-body p  { font-size: .875rem; color: #78350F; line-height: 1.6; }
+    .setup-body code {
+      background: rgba(0,0,0,.08); padding: 2px 6px;
+      border-radius: 4px; font-size: .82rem; font-family: monospace;
+    }
+    .setup-url-row { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+    .setup-url-input {
+      flex: 1; padding: 8px 12px; border: 1px solid #FCD34D;
+      border-radius: var(--r); font-size: .875rem;
+      background: rgba(255,255,255,.7);
+    }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex; align-items: center; gap: 8px;
+      justify-content: flex-end; margin-top: 16px;
+      font-size: .875rem; color: var(--muted);
+    }
+    .page-btn {
+      padding: 6px 12px; border: 1px solid var(--border);
+      border-radius: 6px; background: var(--white); cursor: pointer;
+      font-size: .875rem; transition: all .15s;
+    }
+    .page-btn:hover, .page-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .page-btn:disabled { opacity: .4; cursor: default; }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 48px 24px; color: var(--muted); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ── LOADING ── */
+    .loading { text-align: center; padding: 48px; color: var(--muted); }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 500; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white); border-radius: 12px; max-width: 560px;
+      width: 90%; max-height: 80vh; overflow-y: auto; padding: 32px;
+      position: relative;
+    }
+    .modal h2 { font-size: 1.25rem; margin-bottom: 4px; }
+    .modal-meta { font-size: .8rem; color: var(--muted); margin-bottom: 24px; }
+    .modal-field { margin-bottom: 16px; }
+    .modal-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+    .modal-value { font-size: .9375rem; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; font-size: 1.25rem;
+      cursor: pointer; color: var(--muted); padding: 4px 8px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 60px; }
+      .sb-logo, .sb-item span, .sb-footer { display: none; }
+      .sb-item { justify-content: center; padding: 12px; }
+      .main { margin-left: 60px; padding: 20px; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .charts-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="sb-logo">People<span>Bot</span></div>
+  <nav class="sb-nav">
+    <button class="sb-item active" onclick="showTab('contactos')">
+      <span>👥</span><span>Contactos</span>
+    </button>
+    <button class="sb-item" onclick="showTab('analytics')">
+      <span>📊</span><span>Analítica</span>
+    </button>
+    <button class="sb-item" onclick="showTab('config')">
+      <span>⚙️</span><span>Configurar</span>
+    </button>
+    <button class="sb-item" onclick="window.open('../index.html','_blank')">
+      <span>🌐</span><span>Ver sitio</span>
+    </button>
+  </nav>
+  <div class="sb-footer">v1.0 · local</div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <h1 id="pageTitle">Contactos</h1>
+      <p style="color:var(--muted);font-size:.875rem;margin-top:2px;" id="pageDesc">Todos los mensajes recibidos por el formulario de contacto</p>
+    </div>
+    <div class="topbar-actions">
+      <span class="badge-live" id="statusBadge">Conectado</span>
+      <button class="btn btn-ghost" onclick="loadData()">↺ Actualizar</button>
+      <button class="btn btn-primary" onclick="exportCSV()">⬇ Exportar CSV</button>
+    </div>
+  </div>
+
+  <!-- SETUP BANNER -->
+  <div class="setup-banner" id="setupBanner" style="display:none;">
+    <div class="setup-icon">⚠️</div>
+    <div class="setup-body">
+      <h3>Configura tu Apps Script para ver datos reales</h3>
+      <p>
+        1. Ve a <a href="https://script.google.com/home" target="_blank" style="color:var(--blue)">script.google.com</a> → Nuevo proyecto<br>
+        2. Pega el código del archivo <code>apps-script.gs</code> en tu carpeta PeopleBot<br>
+        3. Clic en <strong>Implementar → Nueva implementación → Web App</strong><br>
+        4. Acceso: <strong>Cualquier persona</strong> → Implementar → Copia la URL
+      </p>
+      <div class="setup-url-row">
+        <input class="setup-url-input" id="setupUrlInput" placeholder="https://script.google.com/macros/s/…/exec" />
+        <button class="btn btn-primary" onclick="saveScriptUrl()">Guardar URL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: CONTACTOS ── -->
+  <div id="tabContactos">
+
+    <!-- KPI ROW -->
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">Total contactos</div>
+        <div class="kpi-value" id="kTotal">—</div>
+        <div class="kpi-delta up" id="kTotalDelta"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Este mes</div>
+        <div class="kpi-value" id="kMes">—</div>
+        <div class="kpi-sub">vs mes anterior</div>
+        <div class="kpi-delta" id="kMesDelta"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Esta semana</div>
+        <div class="kpi-value" id="kSemana">—</div>
+        <div class="kpi-sub">últimos 7 días</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Con empresa</div>
+        <div class="kpi-value" id="kEmpresa">—</div>
+        <div class="kpi-sub">% del total</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="filters">
+        <input class="filter-input" id="searchInput" placeholder="🔍  Buscar por nombre, email o empresa…" oninput="filterTable()">
+        <select class="filter-select" id="filterMes" onchange="filterTable()">
+          <option value="">Todos los meses</option>
+        </select>
+        <select class="filter-select" id="filterSort" onchange="filterTable()">
+          <option value="desc">Más recientes primero</option>
+          <option value="asc">Más antiguos primero</option>
+        </select>
+        <span style="font-size:.8rem;color:var(--muted);" id="countLabel"></span>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+      <div id="tableArea">
+        <div class="loading"><div class="spinner"></div>Cargando datos…</div>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+  </div><!-- /tabContactos -->
+
+  <!-- ── TAB: ANALYTICS ── -->
+  <div id="tabAnalytics" style="display:none;">
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-title">Contactos por semana</div>
+        <canvas id="chartTimeline" height="80"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">Por zona horaria / región</div>
+        <canvas id="chartRegion" height="200"></canvas>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-title">Mensajes por día de la semana</div>
+        <canvas id="chartDia" height="80"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">Empresas más frecuentes</div>
+        <div id="topEmpresas" style="font-size:.875rem;"></div>
+      </div>
+    </div>
+  </div><!-- /tabAnalytics -->
+
+  <!-- ── TAB: CONFIG ── -->
+  <div id="tabConfig" style="display:none;">
+    <div class="card" style="max-width:600px;">
+      <div class="card-title">Configuración de fuente de datos</div>
+      <p style="font-size:.875rem;color:var(--muted);margin-bottom:20px;line-height:1.6;">
+        El dashboard lee datos desde tu Google Apps Script. Pega la URL de tu Web App aquí.
+        La URL se guarda en tu navegador (localStorage) y persiste entre sesiones.
+      </p>
+      <div class="cf-group" style="margin-bottom:16px;">
+        <label style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:6px;">URL del Apps Script</label>
+        <input id="configUrlInput" class="filter-input" style="width:100%;" placeholder="https://script.google.com/macros/s/…/exec">
+      </div>
+      <button class="btn btn-primary" onclick="saveScriptUrlFromConfig()">Guardar y conectar</button>
+      <p id="configStatus" style="margin-top:12px;font-size:.875rem;display:none;"></p>
+      <hr style="margin:28px 0;border-color:var(--border);">
+      <div class="card-title" style="margin-bottom:12px;">Instrucciones para el Apps Script</div>
+      <ol style="font-size:.875rem;line-height:2;color:var(--muted);padding-left:18px;">
+        <li>Abre <a href="https://script.google.com/home" target="_blank" style="color:var(--blue)">script.google.com</a> y crea un nuevo proyecto</li>
+        <li>Pega el contenido del archivo <code style="background:var(--slate);padding:2px 6px;border-radius:4px;">apps-script.gs</code></li>
+        <li>Clic en <strong>Implementar → Nueva implementación</strong></li>
+        <li>Tipo: <strong>Aplicación web</strong></li>
+        <li>Ejecutar como: <strong>Yo (tu cuenta Google)</strong></li>
+        <li>Quién tiene acceso: <strong>Cualquier persona</strong></li>
+        <li>Clic en <strong>Implementar</strong> → autoriza los permisos</li>
+        <li>Copia la URL generada y pégala arriba</li>
+      </ol>
+    </div>
+  </div><!-- /tabConfig -->
+
+</main>
+
+<!-- ── MODAL DETALLE ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="mNombre"></h2>
+    <div class="modal-meta" id="mMeta"></div>
+    <div class="modal-field"><div class="modal-label">Email</div><div class="modal-value" id="mEmail"></div></div>
+    <div class="modal-field"><div class="modal-label">Empresa</div><div class="modal-value" id="mEmpresa"></div></div>
+    <div class="modal-field"><div class="modal-label">Zona horaria</div><div class="modal-value" id="mZona"></div></div>
+    <div class="modal-field"><div class="modal-label">Mensaje</div><div class="modal-value" id="mMensaje" style="white-space:pre-wrap;line-height:1.6;"></div></div>
+    <div style="margin-top:20px;display:flex;gap:10px;">
+      <a id="mEmailBtn" href="#" class="btn btn-primary" style="text-decoration:none;">✉ Responder por email</a>
+      <a id="mLinkedinBtn" href="https://www.linkedin.com/search/results/people/" target="_blank" class="btn btn-ghost" style="text-decoration:none;">LinkedIn</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   ESTADO GLOBAL
+══════════════════════════════════════ */
+let allData      = [];
+let filtered     = [];
+let currentPage  = 1;
+const PER_PAGE   = 20;
+let chartTimeline, chartRegion, chartDia;
+
+const SCRIPT_URL_KEY = 'pb_script_url';
+
+function getScriptUrl() {
+  return localStorage.getItem(SCRIPT_URL_KEY) || '';
+}
+
+/* ══════════════════════════════════════
+   SETUP URL
+══════════════════════════════════════ */
+function saveScriptUrl() {
+  const url = document.getElementById('setupUrlInput').value.trim();
+  if (!url.startsWith('http')) { alert('URL inválida'); return; }
+  localStorage.setItem(SCRIPT_URL_KEY, url);
+  document.getElementById('setupBanner').style.display = 'none';
+  loadData();
+}
+
+function saveScriptUrlFromConfig() {
+  const url = document.getElementById('configUrlInput').value.trim();
+  const st  = document.getElementById('configStatus');
+  if (!url.startsWith('http')) {
+    st.style.display = 'block'; st.style.color = 'var(--red)';
+    st.textContent = 'Ingresa una URL válida.'; return;
+  }
+  localStorage.setItem(SCRIPT_URL_KEY, url);
+  st.style.display = 'block'; st.style.color = 'var(--green)';
+  st.textContent = 'URL guardada. Cargando datos…';
+  document.getElementById('setupBanner').style.display = 'none';
+  setTimeout(loadData, 600);
+}
+
+/* ══════════════════════════════════════
+   CARGA DE DATOS
+══════════════════════════════════════ */
+async function loadData() {
+  const url = getScriptUrl();
+
+  if (!url) {
+    document.getElementById('setupBanner').style.display = 'flex';
+    document.getElementById('statusBadge').textContent = 'Sin configurar';
+    document.getElementById('statusBadge').style.background = 'var(--gold-lt)';
+    document.getElementById('statusBadge').style.color = 'var(--gold)';
+    renderTable([]);
+    renderKPIs([]);
+    return;
+  }
+
+  document.getElementById('tableArea').innerHTML = '<div class="loading"><div class="spinner"></div>Conectando con Google Sheets…</div>';
+
+  try {
+    const res  = await fetch(url + '?t=' + Date.now());
+    const data = await res.json();
+
+    if (!Array.isArray(data)) throw new Error('Respuesta inesperada');
+
+    allData = data.map(row => ({
+      fecha:   row['Fecha']   || row['fecha']   || '',
+      nombre:  row['Nombre']  || row['nombre']  || 'Sin nombre',
+      email:   row['Email']   || row['email']   || '',
+      empresa: row['Empresa'] || row['empresa'] || '',
+      mensaje: row['Mensaje'] || row['mensaje'] || '',
+      fuente:  row['Fuente']  || row['fuente']  || 'website',
+      zona:    row['IP_aprox']|| row['zona']    || ''
+    }));
+
+    document.getElementById('statusBadge').textContent = 'Conectado · ' + allData.length + ' registros';
+    document.getElementById('statusBadge').style.background = 'var(--green-lt)';
+    document.getElementById('statusBadge').style.color = 'var(--green)';
+    document.getElementById('setupBanner').style.display = 'none';
+
+    populateMesFilter();
+    filterTable();
+    renderKPIs(allData);
+    renderCharts(allData);
+
+  } catch (err) {
+    document.getElementById('tableArea').innerHTML =
+      '<div class="empty"><div class="empty-icon">⚠️</div><p>Error cargando datos.<br><small>' + err.message + '</small></p></div>';
+    document.getElementById('statusBadge').textContent = 'Error de conexión';
+    document.getElementById('statusBadge').style.background = 'var(--red-lt)';
+    document.getElementById('statusBadge').style.color = 'var(--red)';
+  }
+}
+
+/* ══════════════════════════════════════
+   KPI
+══════════════════════════════════════ */
+function renderKPIs(data) {
+  const now   = new Date();
+  const mes   = now.getMonth();
+  const año   = now.getFullYear();
+  const sem   = new Date(now); sem.setDate(now.getDate() - 7);
+  const mesPrev = mes === 0 ? 11 : mes - 1;
+  const añoPrev = mes === 0 ? año - 1 : año;
+
+  const esMes     = r => { const d = new Date(r.fecha); return d.getMonth()===mes && d.getFullYear()===año; };
+  const esMesPrev = r => { const d = new Date(r.fecha); return d.getMonth()===mesPrev && d.getFullYear()===añoPrev; };
+  const esSem     = r => new Date(r.fecha) >= sem;
+
+  const total     = data.length;
+  const thisMes   = data.filter(esMes).length;
+  const prevMes   = data.filter(esMesPrev).length;
+  const thisSem   = data.filter(esSem).length;
+  const conEmp    = data.filter(r => r.empresa && r.empresa.trim()).length;
+  const pctEmp    = total ? Math.round(conEmp/total*100) : 0;
+
+  document.getElementById('kTotal').textContent   = total;
+  document.getElementById('kMes').textContent     = thisMes;
+  document.getElementById('kSemana').textContent  = thisSem;
+  document.getElementById('kEmpresa').textContent = pctEmp + '%';
+
+  const delta = thisMes - prevMes;
+  const elDelta = document.getElementById('kMesDelta');
+  elDelta.textContent  = (delta >= 0 ? '▲ +' : '▼ ') + delta + ' vs mes ant.';
+  elDelta.className    = 'kpi-delta ' + (delta >= 0 ? 'up' : 'down');
+
+  document.getElementById('kTotalDelta').textContent = 'Acumulado histórico';
+}
+
+/* ══════════════════════════════════════
+   FILTROS Y TABLA
+══════════════════════════════════════ */
+function populateMesFilter() {
+  const sel = document.getElementById('filterMes');
+  const meses = [...new Set(allData.map(r => {
+    const d = new Date(r.fecha);
+    return isNaN(d) ? null : d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  }).filter(Boolean))].sort().reverse();
+  sel.innerHTML = '<option value="">Todos los meses</option>' +
+    meses.map(m => {
+      const [y,mo] = m.split('-');
+      const name = new Date(y, mo-1, 1).toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+      return `<option value="${m}">${name}</option>`;
+    }).join('');
+}
+
+function filterTable() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  const mes  = document.getElementById('filterMes').value;
+  const sort = document.getElementById('filterSort').value;
+
+  filtered = allData.filter(r => {
+    const matchQ = !q || [r.nombre,r.email,r.empresa,r.mensaje].join(' ').toLowerCase().includes(q);
+    const matchM = !mes || (() => {
+      const d = new Date(r.fecha);
+      const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      return key === mes;
+    })();
+    return matchQ && matchM;
+  });
+
+  filtered.sort((a,b) => {
+    const da = new Date(a.fecha), db = new Date(b.fecha);
+    return sort === 'desc' ? db - da : da - db;
+  });
+
+  currentPage = 1;
+  document.getElementById('countLabel').textContent = filtered.length + ' resultado' + (filtered.length!==1?'s':'');
+  renderTable(filtered);
+}
+
+function renderTable(data) {
+  const area = document.getElementById('tableArea');
+  if (!data.length) {
+    area.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><p>No hay contactos aún.<br><small>Los mensajes del formulario aparecerán aquí.</small></p></div>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const start = (currentPage-1)*PER_PAGE;
+  const page  = data.slice(start, start+PER_PAGE);
+  const total = Math.ceil(data.length/PER_PAGE);
+
+  area.innerHTML = `
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Empresa</th>
+          <th>Mensaje</th>
+          <th>Fecha</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${page.map((r,i) => `
+        <tr>
+          <td class="td-name">${esc(r.nombre)}</td>
+          <td><a class="td-email" href="mailto:${esc(r.email)}">${esc(r.email)}</a></td>
+          <td class="td-empresa">${esc(r.empresa || '—')}</td>
+          <td class="td-msg" title="${esc(r.mensaje)}">${esc(r.mensaje || '—')}</td>
+          <td class="td-date">${fmtDate(r.fecha)}</td>
+          <td><button class="btn btn-ghost" style="padding:5px 10px;font-size:.8rem;" onclick="openModal(${start+i})">Ver</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>`;
+
+  // Pagination
+  const pg = document.getElementById('pagination');
+  if (total <= 1) { pg.innerHTML=''; return; }
+  pg.innerHTML = `
+    <span>${data.length} contactos · página ${currentPage} de ${total}</span>
+    <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+    ${Array.from({length:Math.min(total,7)},(_,i)=>{
+      const p = currentPage<=4 ? i+1 : currentPage+i-3;
+      if(p<1||p>total) return '';
+      return `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    }).join('')}
+    <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>›</button>`;
+}
+
+function goPage(p) { currentPage = p; renderTable(filtered); window.scrollTo(0,0); }
+
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+function openModal(idx) {
+  const r = filtered[idx];
+  document.getElementById('mNombre').textContent  = r.nombre || 'Sin nombre';
+  document.getElementById('mMeta').textContent    = 'Recibido: ' + fmtDate(r.fecha) + (r.zona ? ' · ' + r.zona : '');
+  document.getElementById('mEmail').textContent   = r.email  || '—';
+  document.getElementById('mEmpresa').textContent = r.empresa|| '—';
+  document.getElementById('mZona').textContent    = r.zona   || '—';
+  document.getElementById('mMensaje').textContent = r.mensaje|| '(sin mensaje)';
+  document.getElementById('mEmailBtn').href       = 'mailto:' + r.email + '?subject=Re: PeopleBot';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal({}); });
+
+/* ══════════════════════════════════════
+   CHARTS
+══════════════════════════════════════ */
+function renderCharts(data) {
+  // ── Timeline (por semana) ──
+  const weekMap = {};
+  data.forEach(r => {
+    const d = new Date(r.fecha);
+    if (isNaN(d)) return;
+    const week = getWeekKey(d);
+    weekMap[week] = (weekMap[week]||0)+1;
+  });
+  const weeks  = Object.keys(weekMap).sort();
+  const counts = weeks.map(w => weekMap[w]);
+
+  if (chartTimeline) chartTimeline.destroy();
+  chartTimeline = new Chart(document.getElementById('chartTimeline'), {
+    type: 'line',
+    data: {
+      labels: weeks.map(w => { const d=new Date(w); return d.toLocaleDateString('es-ES',{day:'numeric',month:'short'}); }),
+      datasets: [{ label:'Contactos', data: counts, fill: true,
+        borderColor:'#2563EB', backgroundColor:'rgba(37,99,235,.1)',
+        tension:.35, pointRadius:3 }]
+    },
+    options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, ticks:{stepSize:1} } } }
+  });
+
+  // ── Región / zona horaria ──
+  const zonaMap = {};
+  data.forEach(r => {
+    const z = r.zona ? r.zona.split('/')[0] : 'Desconocido';
+    zonaMap[z] = (zonaMap[z]||0)+1;
+  });
+  const zonas  = Object.keys(zonaMap).sort((a,b)=>zonaMap[b]-zonaMap[a]).slice(0,6);
+  const zCounts= zonas.map(z=>zonaMap[z]);
+  const zColors= ['#2563EB','#D97706','#16a34a','#9333ea','#0891b2','#dc2626'];
+
+  if (chartRegion) chartRegion.destroy();
+  chartRegion = new Chart(document.getElementById('chartRegion'), {
+    type: 'doughnut',
+    data: { labels: zonas, datasets:[{ data:zCounts, backgroundColor:zColors, borderWidth:0 }] },
+    options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12 } } } }
+  });
+
+  // ── Día de la semana ──
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const diaMap = {0:0,1:0,2:0,3:0,4:0,5:0,6:0};
+  data.forEach(r => { const d = new Date(r.fecha); if(!isNaN(d)) diaMap[d.getDay()]++; });
+
+  if (chartDia) chartDia.destroy();
+  chartDia = new Chart(document.getElementById('chartDia'), {
+    type: 'bar',
+    data: {
+      labels: dias,
+      datasets:[{ label:'Contactos', data:Object.values(diaMap),
+        backgroundColor:'#2563EB', borderRadius:4 }]
+    },
+    options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{beginAtZero:true, ticks:{stepSize:1}} } }
+  });
+
+  // ── Top empresas ──
+  const empMap = {};
+  data.forEach(r => { if(r.empresa&&r.empresa.trim()) { const k=r.empresa.trim(); empMap[k]=(empMap[k]||0)+1; } });
+  const top = Object.entries(empMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const max = top[0]?.[1] || 1;
+  document.getElementById('topEmpresas').innerHTML = top.length
+    ? top.map(([e,c])=>`
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-weight:600;">${esc(e)}</span>
+          <span style="color:var(--muted);">${c}</span>
+        </div>
+        <div style="height:6px;background:var(--slate);border-radius:3px;">
+          <div style="height:6px;background:var(--blue);border-radius:3px;width:${Math.round(c/max*100)}%;"></div>
+        </div>
+      </div>`).join('')
+    : '<p style="color:var(--muted);">Sin datos de empresa aún.</p>';
+}
+
+/* ══════════════════════════════════════
+   EXPORT CSV
+══════════════════════════════════════ */
+function exportCSV() {
+  if (!filtered.length) { alert('No hay datos para exportar.'); return; }
+  const headers = ['Fecha','Nombre','Email','Empresa','Mensaje','Fuente','Zona'];
+  const rows = filtered.map(r => [r.fecha,r.nombre,r.email,r.empresa,r.mensaje,r.fuente,r.zona].map(v=>'"'+(v||'').replace(/"/g,'""')+'"').join(','));
+  const csv  = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='peoplebot-contactos-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+function showTab(tab) {
+  ['tabContactos','tabAnalytics','tabConfig'].forEach(t => {
+    document.getElementById(t).style.display = t === 'tab'+cap(tab) ? '' : 'none';
+  });
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{
+    el.classList.toggle('active', ['contactos','analytics','config'][i]===tab);
+  });
+  const titles = { contactos:['Contactos','Mensajes recibidos por el formulario de contacto'], analytics:['Analítica','Comportamiento y tendencias de contactos'], config:['Configuración','Fuente de datos y ajustes'] };
+  document.getElementById('pageTitle').textContent = titles[tab][0];
+  document.getElementById('pageDesc').textContent  = titles[tab][1];
+
+  // Pre-fill config URL
+  if (tab==='config') {
+    document.getElementById('configUrlInput').value = getScriptUrl();
+  }
+}
+function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1); }
+
+/* ══════════════════════════════════════
+   UTILIDADES
+══════════════════════════════════════ */
+function fmtDate(val) {
+  if (!val) return '—';
+  const d = new Date(val);
+  return isNaN(d) ? val : d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function getWeekKey(d) {
+  const day = new Date(d); day.setDate(d.getDate()-d.getDay());
+  return day.toISOString().slice(0,10);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  const url = getScriptUrl();
+  if (url) {
+    document.getElementById('setupUrlInput').value = url;
+    loadData();
+  } else {
+    document.getElementById('setupBanner').style.display = 'flex';
+    document.getElementById('statusBadge').textContent = 'Sin configurar';
+    document.getElementById('statusBadge').style.background = 'var(--gold-lt)';
+    document.getElementById('statusBadge').style.color = 'var(--gold)';
+    renderTable([]);
+    renderKPIs([]);
+  }
+});
+</script>
+</body>
+</html>

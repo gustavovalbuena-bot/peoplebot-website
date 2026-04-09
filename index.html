@@ -1183,18 +1183,16 @@
         </p>
       </div>
       <div class="nl-form">
-        <div class="nl-field">
-          <input type="email" id="nlEmail" class="nl-input"
-                 data-placeholder-es="tu@email.com"
-                 data-placeholder-en="you@email.com"
-                 placeholder="tu@email.com">
-          <button class="nl-btn" onclick="handleNL()"
-                  data-es="Suscribirme" data-en="Subscribe">Suscribirme</button>
-        </div>
+        <!-- Substack embed oficial — suscriptores van directo a tu lista -->
+        <iframe src="https://gustavovalbuena.substack.com/embed"
+                width="100%" height="150"
+                style="border:none; background:transparent; max-width:480px; display:block;"
+                frameborder="0" scrolling="no"
+                title="Newsletter PeopleBot"></iframe>
         <p class="nl-note"
-           data-es="Al hacer clic te redirigiremos a Substack para confirmar. Sin spam, siempre."
-           data-en="Clicking redirects you to Substack to confirm. No spam, ever.">
-          Al hacer clic te redirigiremos a Substack para confirmar. Sin spam, siempre.
+           data-es="Confirmarás por email. Sin spam, siempre."
+           data-en="You'll confirm by email. No spam, ever.">
+          Confirmarás por email. Sin spam, siempre.
         </p>
       </div>
     </div>
@@ -1261,37 +1259,38 @@
         </div>
       </div>
 
-      <form class="cform" onsubmit="handleContact(event)">
+      <form class="cform" id="contactForm" onsubmit="handleContact(event)">
         <div class="cf-group">
           <label class="cf-label" data-es="Nombre" data-en="Name">Nombre</label>
-          <input type="text" class="cf-input"
+          <input type="text" id="cfNombre" class="cf-input"
                  data-placeholder-es="Tu nombre completo"
                  data-placeholder-en="Your full name"
-                 placeholder="Tu nombre completo">
+                 placeholder="Tu nombre completo" required>
         </div>
         <div class="cf-group">
           <label class="cf-label">Email</label>
-          <input type="email" class="cf-input"
+          <input type="email" id="cfEmail" class="cf-input"
                  data-placeholder-es="tu@email.com"
                  data-placeholder-en="you@email.com"
-                 placeholder="tu@email.com">
+                 placeholder="tu@email.com" required>
         </div>
         <div class="cf-group">
           <label class="cf-label" data-es="Empresa" data-en="Company">Empresa</label>
-          <input type="text" class="cf-input"
+          <input type="text" id="cfEmpresa" class="cf-input"
                  data-placeholder-es="Tu empresa (opcional)"
                  data-placeholder-en="Your company (optional)"
                  placeholder="Tu empresa (opcional)">
         </div>
         <div class="cf-group">
           <label class="cf-label" data-es="¿Cómo podemos ayudarte?" data-en="How can we help?">¿Cómo podemos ayudarte?</label>
-          <textarea class="cf-textarea"
+          <textarea id="cfMensaje" class="cf-textarea"
                     data-placeholder-es="Cuéntanos sobre tu proyecto o necesidad..."
                     data-placeholder-en="Tell us about your project or need..."
                     placeholder="Cuéntanos sobre tu proyecto o necesidad..."></textarea>
         </div>
-        <button type="submit" class="btn btn-dark"
+        <button type="submit" id="cfSubmit" class="btn btn-dark"
                 data-es="Enviar mensaje" data-en="Send message">Enviar mensaje</button>
+        <p id="cfStatus" style="margin-top:12px;font-size:.9rem;display:none;"></p>
       </form>
     </div>
   </div>
@@ -1665,9 +1664,63 @@
   }
 
   /* ── CONTACT FORM ── */
-  function handleContact(e) {
+  // ▶ Pega aquí la URL de tu Apps Script (Implementar → Web App → URL)
+  const APPS_SCRIPT_URL = 'PEGAR_URL_APPS_SCRIPT_AQUI';
+
+  async function handleContact(e) {
     e.preventDefault();
-    window.open('https://www.linkedin.com/in/gustavo-valbuena/', '_blank');
+    const btn    = document.getElementById('cfSubmit');
+    const status = document.getElementById('cfStatus');
+    const lang   = document.documentElement.lang || 'es';
+
+    const payload = {
+      nombre:   document.getElementById('cfNombre').value.trim(),
+      email:    document.getElementById('cfEmail').value.trim(),
+      empresa:  document.getElementById('cfEmpresa').value.trim(),
+      mensaje:  document.getElementById('cfMensaje').value.trim(),
+      source:   'website-contacto',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+
+    // Sin URL configurada aún → mensaje de instrucción
+    if (APPS_SCRIPT_URL === 'PEGAR_URL_APPS_SCRIPT_AQUI') {
+      status.style.display = 'block';
+      status.style.color   = '#D97706';
+      status.textContent   = lang === 'es'
+        ? 'Formulario en configuración. Contáctanos por LinkedIn.'
+        : 'Form being configured. Contact us on LinkedIn.';
+      setTimeout(() => window.open('https://www.linkedin.com/in/gustavo-valbuena/', '_blank'), 800);
+      return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = lang === 'es' ? 'Enviando…' : 'Sending…';
+    status.style.display = 'none';
+
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method:  'POST',
+        mode:    'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload)
+      });
+      // no-cors devuelve opaque response; asumimos éxito si no lanza
+      document.getElementById('contactForm').reset();
+      status.style.display = 'block';
+      status.style.color   = '#16a34a';
+      status.textContent   = lang === 'es'
+        ? '¡Mensaje enviado! Te contactamos pronto.'
+        : 'Message sent! We\'ll be in touch soon.';
+    } catch (err) {
+      status.style.display = 'block';
+      status.style.color   = '#dc2626';
+      status.textContent   = lang === 'es'
+        ? 'Error al enviar. Escríbenos a LinkedIn.'
+        : 'Error sending. Reach us on LinkedIn.';
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = lang === 'es' ? 'Enviar mensaje' : 'Send message';
+    }
   }
 
   /* ── PRIVACY MODAL ── */
