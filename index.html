@@ -651,6 +651,14 @@
     font-size: .9375rem; color: rgba(255,255,255,.38);
     line-height: 1.72; margin-top: 14px; max-width: 260px;
   }
+  .footer-brand-name {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    color: var(--white);
+    opacity: .9;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
   .footer-logo-img {
     height: 38px; width: auto;
     filter: brightness(0) invert(1);
@@ -717,6 +725,12 @@
   @media (max-width: 900px) {
     .nav-links, .nav-cta-d { display: none; }
     .hamburger { display: flex; }
+    /* Always show nav background on mobile for readability */
+    .nav {
+      background: rgba(8, 14, 28, .97);
+      backdrop-filter: blur(16px);
+    }
+    .nav-logo-text { font-size: 1.2rem; }
     .mission-split { grid-template-columns: 1fr; gap: 40px; }
     .pillars { grid-template-columns: 1fr; }
     .products-grid { grid-template-columns: 1fr; }
@@ -728,14 +742,25 @@
   }
   @media (max-width: 640px) {
     .container { padding: 0 22px; }
-    :root { --pad: 64px; }
+    :root { --pad: 56px; --nav-h: 60px; }
     .stats-row { flex-wrap: wrap; gap: 32px; }
     .stat + .stat::before { display: none; }
     .footer-grid { grid-template-columns: 1fr; }
     .footer-bottom { flex-direction: column; align-items: flex-start; }
     .hero-actions { flex-direction: column; }
     .hero-actions .btn { justify-content: center; }
-    h1 { font-size: 2.5rem; }
+    h1 { font-size: clamp(2rem, 10vw, 2.5rem); }
+    h2 { font-size: clamp(1.6rem, 8vw, 2rem); }
+    h3 { font-size: 1.15rem; }
+    .nav-logo-text { font-size: 1.1rem; }
+    .section-tag { font-size: .72rem; margin-bottom: 10px; }
+    .nav-inner { gap: 12px; }
+    .lang-toggle { gap: 2px; }
+  }
+  @media (max-width: 380px) {
+    .nav-logo-text { font-size: 1rem; }
+    h1 { font-size: 1.85rem; }
+    h2 { font-size: 1.5rem; }
   }
 
   /* ══════════════════════════════════════════
@@ -816,7 +841,7 @@
   <div class="container">
     <div class="nav-inner">
       <a href="#inicio" class="nav-logo">
-        <img src="assets/img/logo.svg" alt="PeopleBot">
+        <span class="nav-logo-text">PeopleBot</span>
       </a>
       <ul class="nav-links">
         <li><a href="#mision"    data-es="Misión"    data-en="Mission">Misión</a></li>
@@ -1277,9 +1302,7 @@
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="#inicio">
-          <img src="assets/img/logo.svg" alt="PeopleBot" class="footer-logo-img">
-        </a>
+        <a href="#inicio" class="footer-brand-name">PeopleBot</a>
         <p data-es="La plataforma de referencia para profesionales de talento humano en habla hispana que lideran la era de la inteligencia artificial."
            data-en="The reference platform for Spanish-speaking HR professionals leading the artificial intelligence era.">
           La plataforma de referencia para profesionales de talento humano en habla hispana que lideran la era de la inteligencia artificial.
