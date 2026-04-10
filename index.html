@@ -1665,7 +1665,7 @@
 
   /* ── CONTACT FORM ── */
   // ▶ Pega aquí la URL de tu Apps Script (Implementar → Web App → URL)
-  const APPS_SCRIPT_URL = 'PEGAR_URL_APPS_SCRIPT_AQUI';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxD6k1cgD6_y3bgvTCOwnX5OKJ-_N7ipmBc7-zy9gQ7-DeaghUOhL-169lrYCN1yPxoRA/exec';
 
   async function handleContact(e) {
     e.preventDefault();
@@ -1683,7 +1683,7 @@
     };
 
     // Sin URL configurada aún → mensaje de instrucción
-    if (APPS_SCRIPT_URL === 'PEGAR_URL_APPS_SCRIPT_AQUI') {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PEGAR')) {
       status.style.display = 'block';
       status.style.color   = '#D97706';
       status.textContent   = lang === 'es'
